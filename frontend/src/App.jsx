@@ -36,12 +36,11 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 
 // ── Layout with Navbar ─────────────────────────────────────
 const Layout = ({ children }) => (
-  <div className="min-h-screen bg-gray-50">
+  <div className="flex h-screen overflow-hidden bg-gray-50">
     <Navbar />
-    <main>{children}</main>
+    <main className="flex-1 overflow-y-auto">{children}</main>
   </div>
 );
-
 // ── Alert + Toast Wire ─────────────────────────────────────
 const AlertWrapper = ({ children }) => {
   const { addToast } = useToast();

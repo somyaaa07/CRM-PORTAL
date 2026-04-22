@@ -5,19 +5,21 @@ import { useAlerts } from '../context/AlertContext';
 import {
   LayoutDashboard, ClipboardList, BarChart2, Phone,
   Users, Upload, Bell, LogOut, AlertTriangle,
-  CalendarClock, CheckCircle2, ChevronRight,
+  CalendarClock, CheckCircle2, ChevronRight, ChevronLeft,
+  PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 
-/* ─── Design tokens (shared with Login & AgentDashboard) ─────────────── */
-const purple      = '#7c4dff';
-const purpleDark  = '#5722cc';
-const ink         = '#0b0715';
-const font        = "'Manrope', sans-serif";
+/* ─── Design tokens ─────────────────────────────────────────────────── */
+const purple     = '#7c4dff';
+const purpleDark = '#5722cc';
+const ink        = '#0b0715';
+const font       = "'Manrope', sans-serif";
 
 export default function Navbar() {
-  const { user, logout }           = useAuth();
-  const { alertStats, alerts }     = useAlerts();
-  const navigate                   = useNavigate();
+  const { user, logout }       = useAuth();
+  const { alertStats, alerts } = useAlerts();
+  const navigate               = useNavigate();
+  const [collapsed, setCollapsed]       = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleLogout = () => { logout(); navigate('/login'); };
@@ -38,37 +40,55 @@ export default function Navbar() {
   ];
 
   const navLinks = user?.role === 'admin' ? adminLinks : agentLinks;
+  const initials = user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
-        .nav-root {
+        /* ── Sidebar shell ── */
+        .sidebar {
           font-family: ${font};
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
           background: #ffffff;
-          border-bottom: 1px solid rgba(11,7,21,0.07);
-          padding: 0 1.75rem;
+          border-right: 1px solid rgba(11,7,21,0.07);
           position: sticky;
           top: 0;
           z-index: 100;
+          transition: width 0.22s cubic-bezier(.4,0,.2,1);
+          overflow: hidden;
+          flex-shrink: 0;
         }
 
-        .nav-inner {
+        .sidebar.expanded { width: 220px; }
+        .sidebar.collapsed { width: 64px; }
+
+        /* ── Top: Logo + collapse toggle ── */
+        .sidebar-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          padding: 0 14px;
           height: 60px;
-          gap: 1.5rem;
+          border-bottom: 1px solid rgba(11,7,21,0.07);
+          flex-shrink: 0;
         }
 
-        /* ── Logo ── */
+        .sidebar.collapsed .sidebar-header {
+          justify-content: center;
+          padding: 0;
+        }
+
         .nav-logo {
           display: flex;
           align-items: center;
           gap: 9px;
           text-decoration: none;
-          flex-shrink: 0;
+          overflow: hidden;
+          white-space: nowrap;
         }
 
         .logo-icon {
@@ -84,33 +104,106 @@ export default function Navbar() {
         }
 
         .logo-text {
-          font-size: 0.95rem;
+          font-size: 0.92rem;
           font-weight: 800;
           color: ${ink};
           letter-spacing: -0.02em;
+          transition: opacity 0.15s, width 0.22s;
+          overflow: hidden;
+        }
+
+        .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
+        .sidebar.expanded  .logo-text { opacity: 1; width: auto; }
+
+        /* Toggle button */
+        .collapse-btn {
+          width: 28px;
+          height: 28px;
+          border-radius: 7px;
+          border: 1px solid rgba(11,7,21,0.09);
+          background: transparent;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: rgba(11,7,21,0.35);
+          flex-shrink: 0;
+          transition: background 0.15s, color 0.15s;
+        }
+
+        .collapse-btn:hover {
+          background: rgba(11,7,21,0.05);
+          color: ${ink};
+        }
+
+        .sidebar.collapsed .collapse-btn { display: none; }
+
+        /* Collapsed expand button centered at top */
+        .expand-btn {
+          display: none;
+          width: 34px;
+          height: 34px;
+          border-radius: 9px;
+          border: 1px solid rgba(11,7,21,0.09);
+          background: transparent;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: rgba(11,7,21,0.35);
+          transition: background 0.15s, color 0.15s;
+        }
+
+        .sidebar.collapsed .expand-btn {
+          display: flex;
+        }
+
+        .expand-btn:hover {
+          background: rgba(124,77,255,0.08);
+          color: ${purple};
+          border-color: rgba(124,77,255,0.2);
         }
 
         /* ── Nav links ── */
-        .nav-links {
-          display: flex;
-          align-items: center;
-          gap: 2px;
+        .sidebar-nav {
           flex: 1;
-          justify-content: center;
+          padding: 10px 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          overflow-y: auto;
+          scrollbar-width: none;
         }
+
+        .sidebar-nav::-webkit-scrollbar { display: none; }
+
+        .nav-section-label {
+          font-size: 0.6rem;
+          font-weight: 700;
+          color: rgba(11,7,21,0.25);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          padding: 8px 8px 4px;
+          white-space: nowrap;
+          overflow: hidden;
+          transition: opacity 0.15s;
+        }
+
+        .sidebar.collapsed .nav-section-label { opacity: 0; height: 0; padding: 0; }
 
         .nav-link {
           display: flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
-          border-radius: 8px;
-          font-size: 0.78rem;
+          gap: 10px;
+          padding: 9px 10px;
+          border-radius: 9px;
+          font-size: 0.8rem;
           font-weight: 600;
           color: rgba(11,7,21,0.45);
           text-decoration: none;
           transition: background 0.15s, color 0.15s;
           white-space: nowrap;
+          overflow: hidden;
+          position: relative;
         }
 
         .nav-link:hover {
@@ -125,52 +218,96 @@ export default function Navbar() {
 
         .nav-link.active svg { color: ${purple}; }
 
-        /* ── Right side ── */
-        .nav-right {
+        .nav-link svg { flex-shrink: 0; }
+
+        .nav-link-label {
+          overflow: hidden;
+          white-space: nowrap;
+          transition: opacity 0.15s, width 0.22s, max-width 0.22s;
+        }
+
+        .sidebar.expanded  .nav-link-label { opacity: 1; max-width: 200px; }
+        .sidebar.collapsed .nav-link-label { opacity: 0; max-width: 0; width: 0; }
+
+        /* Active bar */
+        .nav-link.active::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 3px;
+          height: 60%;
+          background: ${purple};
+          border-radius: 0 3px 3px 0;
+        }
+
+        /* Tooltip for collapsed mode */
+        .sidebar.collapsed .nav-link {
+          justify-content: center;
+          padding: 9px 0;
+        }
+
+        /* ── Bottom section ── */
+        .sidebar-footer {
+          padding: 10px;
+          border-top: 1px solid rgba(11,7,21,0.07);
           display: flex;
-          align-items: center;
-          gap: 10px;
+          flex-direction: column;
+          gap: 6px;
           flex-shrink: 0;
         }
 
-        /* Bell button */
-        .bell-wrap { position: relative; }
+        /* Bell row */
+        .bell-row {
+          position: relative;
+        }
 
         .bell-btn {
-          width: 36px;
-          height: 36px;
-          border-radius: 9px;
-          border: 1px solid rgba(11,7,21,0.09);
-          background: transparent;
+          width: 100%;
           display: flex;
           align-items: center;
-          justify-content: center;
+          gap: 10px;
+          padding: 9px 10px;
+          border-radius: 9px;
+          border: none;
+          background: transparent;
           cursor: pointer;
           color: rgba(11,7,21,0.45);
-          transition: background 0.15s, color 0.15s, border-color 0.15s;
+          font-family: ${font};
+          font-size: 0.8rem;
+          font-weight: 600;
+          transition: background 0.15s, color 0.15s;
+          white-space: nowrap;
+          overflow: hidden;
           position: relative;
         }
 
         .bell-btn:hover {
           background: rgba(11,7,21,0.04);
           color: ${ink};
-          border-color: rgba(11,7,21,0.15);
         }
 
         .bell-btn.has-alert {
-          border-color: rgba(124,77,255,0.25);
           color: ${purple};
           background: rgba(124,77,255,0.06);
         }
+
+        .sidebar.collapsed .bell-btn {
+          justify-content: center;
+          padding: 9px 0;
+        }
+
+        .bell-icon-wrap { position: relative; flex-shrink: 0; }
 
         .bell-badge {
           position: absolute;
           top: -4px;
           right: -4px;
-          width: 17px;
-          height: 17px;
+          width: 16px;
+          height: 16px;
           border-radius: 50%;
-          font-size: 0.55rem;
+          font-size: 0.5rem;
           font-weight: 800;
           font-family: ${font};
           color: #fff;
@@ -180,21 +317,36 @@ export default function Navbar() {
           border: 2px solid #fff;
         }
 
-        .bell-badge.overdue { background: #dc2626; }
+        .bell-badge.overdue  { background: #dc2626; }
         .bell-badge.upcoming { background: #ea580c; }
 
-        /* Dropdown */
+        .bell-btn-label {
+          overflow: hidden;
+          transition: opacity 0.15s, max-width 0.22s;
+        }
+
+        .sidebar.expanded  .bell-btn-label { opacity: 1; max-width: 200px; }
+        .sidebar.collapsed .bell-btn-label { opacity: 0; max-width: 0; width: 0; }
+
+        /* Dropdown (pops to the RIGHT in sidebar mode) */
         .bell-dropdown {
           position: absolute;
-          right: 0;
-          top: calc(100% + 10px);
+          left: calc(100% + 12px);
+          bottom: 0;
           width: 300px;
           background: #fff;
           border: 1px solid rgba(11,7,21,0.09);
           border-radius: 14px;
-          box-shadow: 0 16px 48px rgba(11,7,21,0.12);
+          box-shadow: 0 16px 48px rgba(11,7,21,0.13);
           z-index: 200;
           overflow: hidden;
+        }
+
+        /* When sidebar is expanded, dropdown opens upward above the bell row */
+        .sidebar.expanded .bell-dropdown {
+          left: 0;
+          bottom: calc(100% + 8px);
+          width: 100%;
         }
 
         .dropdown-header {
@@ -212,6 +364,7 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           gap: 6px;
+          font-family: ${font};
         }
 
         .dropdown-count {
@@ -219,9 +372,10 @@ export default function Navbar() {
           font-weight: 700;
           padding: 2px 8px;
           border-radius: 20px;
+          font-family: ${font};
         }
 
-        .dropdown-count.overdue { background: #fee2e2; color: #dc2626; }
+        .dropdown-count.overdue  { background: #fee2e2; color: #dc2626; }
         .dropdown-count.upcoming { background: #ffedd5; color: #ea580c; }
 
         .dropdown-empty {
@@ -234,89 +388,66 @@ export default function Navbar() {
         }
 
         .dropdown-empty-icon {
-          width: 36px;
-          height: 36px;
+          width: 36px; height: 36px;
           background: rgba(22,163,74,0.1);
           border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: flex; align-items: center; justify-content: center;
           color: #16a34a;
         }
 
         .dropdown-empty-text {
-          font-size: 0.78rem;
-          font-weight: 500;
-          color: rgba(11,7,21,0.4);
+          font-size: 0.78rem; font-weight: 500;
+          color: rgba(11,7,21,0.4); font-family: ${font};
         }
 
-        .alert-list { max-height: 260px; overflow-y: auto; }
+        .alert-list { max-height: 240px; overflow-y: auto; }
 
         .alert-item {
-          padding: 0.75rem 1rem;
+          padding: 0.7rem 1rem;
           border-bottom: 1px solid rgba(11,7,21,0.05);
-          display: flex;
-          align-items: flex-start;
-          gap: 10px;
+          display: flex; align-items: flex-start; gap: 10px;
         }
 
         .alert-item:last-child { border-bottom: none; }
-        .alert-item.overdue { background: rgba(220,38,38,0.03); }
+        .alert-item.overdue  { background: rgba(220,38,38,0.03); }
         .alert-item.upcoming { background: rgba(234,88,12,0.02); }
 
         .alert-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          margin-top: 5px;
-          flex-shrink: 0;
+          width: 7px; height: 7px; border-radius: 50%;
+          margin-top: 5px; flex-shrink: 0;
         }
 
-        .alert-dot.overdue { background: #dc2626; }
+        .alert-dot.overdue  { background: #dc2626; }
         .alert-dot.upcoming { background: #ea580c; }
 
         .alert-info { flex: 1; min-width: 0; }
 
         .alert-name {
-          font-size: 0.78rem;
-          font-weight: 600;
-          color: ${ink};
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          font-size: 0.78rem; font-weight: 600; color: ${ink};
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          font-family: ${font};
         }
 
         .alert-meta {
-          font-size: 0.68rem;
-          font-weight: 400;
-          color: rgba(11,7,21,0.4);
-          margin-top: 2px;
+          font-size: 0.68rem; font-weight: 400;
+          color: rgba(11,7,21,0.4); margin-top: 2px; font-family: ${font};
         }
 
         .alert-tag {
-          font-size: 0.62rem;
-          font-weight: 700;
-          padding: 2px 7px;
-          border-radius: 20px;
-          white-space: nowrap;
-          flex-shrink: 0;
+          font-size: 0.62rem; font-weight: 700;
+          padding: 2px 7px; border-radius: 20px;
+          white-space: nowrap; flex-shrink: 0; font-family: ${font};
         }
 
-        .alert-tag.overdue { background: #fee2e2; color: #dc2626; }
+        .alert-tag.overdue  { background: #fee2e2; color: #dc2626; }
         .alert-tag.upcoming { background: #ffedd5; color: #ea580c; }
 
         .dropdown-footer {
           padding: 0.7rem 1rem;
           border-top: 1px solid rgba(11,7,21,0.07);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 5px;
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: ${purple};
-          cursor: pointer;
-          transition: background 0.15s;
+          display: flex; align-items: center; justify-content: center; gap: 5px;
+          font-size: 0.72rem; font-weight: 600; color: ${purple};
+          cursor: pointer; transition: background 0.15s; font-family: ${font};
         }
 
         .dropdown-footer:hover { background: rgba(124,77,255,0.05); }
@@ -326,233 +457,316 @@ export default function Navbar() {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 4px 10px 4px 4px;
-          border: 1px solid rgba(11,7,21,0.09);
-          border-radius: 20px;
+          padding: 7px 10px;
+          border: 1px solid rgba(11,7,21,0.08);
+          border-radius: 11px;
+          background: rgba(11,7,21,0.02);
+          overflow: hidden;
+        }
+
+        .sidebar.collapsed .user-pill {
+          padding: 7px 0;
+          justify-content: center;
+          border-color: transparent;
           background: transparent;
         }
 
         .user-avatar {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
+          width: 28px; height: 28px; border-radius: 50%;
           background: linear-gradient(135deg, ${purple}, ${purpleDark});
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.6rem;
-          font-weight: 800;
-          color: #fff;
-          flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 0.6rem; font-weight: 800; color: #fff; flex-shrink: 0;
         }
 
-        .user-info { display: flex; flex-direction: column; line-height: 1.2; }
+        .user-info {
+          display: flex; flex-direction: column; line-height: 1.2;
+          overflow: hidden;
+          transition: opacity 0.15s, max-width 0.22s;
+        }
+
+        .sidebar.expanded  .user-info { opacity: 1; max-width: 160px; }
+        .sidebar.collapsed .user-info { opacity: 0; max-width: 0; width: 0; }
 
         .user-name {
-          font-size: 0.75rem;
-          font-weight: 700;
-          color: ${ink};
+          font-size: 0.75rem; font-weight: 700; color: ${ink};
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
         .user-role {
-          font-size: 0.62rem;
-          font-weight: 500;
-          color: rgba(11,7,21,0.38);
-          text-transform: capitalize;
+          font-size: 0.62rem; font-weight: 500;
+          color: rgba(11,7,21,0.38); text-transform: capitalize;
         }
 
         /* Logout button */
         .logout-btn {
           display: flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
-          border-radius: 8px;
-          border: 1px solid rgba(220,38,38,0.2);
-          background: rgba(220,38,38,0.05);
+          gap: 8px;
+          padding: 9px 10px;
+          border-radius: 9px;
+          border: 1px solid rgba(220,38,38,0.15);
+          background: rgba(220,38,38,0.04);
           color: #dc2626;
           font-family: ${font};
-          font-size: 0.75rem;
+          font-size: 0.8rem;
           font-weight: 600;
           cursor: pointer;
           transition: background 0.15s, border-color 0.15s;
+          white-space: nowrap;
+          overflow: hidden;
         }
 
         .logout-btn:hover {
-          background: rgba(220,38,38,0.1);
-          border-color: rgba(220,38,38,0.35);
+          background: rgba(220,38,38,0.09);
+          border-color: rgba(220,38,38,0.3);
         }
 
-        /* ── Mobile nav ── */
-        .mobile-nav {
+        .sidebar.collapsed .logout-btn {
+          justify-content: center;
+          padding: 9px 0;
+          border-color: transparent;
+          background: transparent;
+        }
+
+        .logout-btn-label {
+          overflow: hidden;
+          transition: opacity 0.15s, max-width 0.22s;
+        }
+
+        .sidebar.expanded  .logout-btn-label { opacity: 1; max-width: 200px; }
+        .sidebar.collapsed .logout-btn-label { opacity: 0; max-width: 0; width: 0; }
+
+        /* ── Mobile bottom bar (≤ 640px) ── */
+        .mobile-bar {
           display: none;
-          gap: 4px;
-          padding: 0.5rem 0;
-          overflow-x: auto;
-          border-top: 1px solid rgba(11,7,21,0.06);
-          scrollbar-width: none;
+          position: fixed;
+          bottom: 0; left: 0; right: 0;
+          height: 58px;
+          background: #fff;
+          border-top: 1px solid rgba(11,7,21,0.07);
+          z-index: 110;
+          padding: 0 6px;
+          align-items: center;
+          justify-content: space-around;
+          gap: 2px;
         }
-
-        .mobile-nav::-webkit-scrollbar { display: none; }
 
         .mobile-link {
+          flex: 1;
           display: flex;
+          flex-direction: column;
           align-items: center;
-          gap: 5px;
-          padding: 5px 11px;
-          border-radius: 7px;
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: rgba(11,7,21,0.45);
+          justify-content: center;
+          gap: 3px;
+          padding: 6px 4px;
+          border-radius: 9px;
           text-decoration: none;
-          white-space: nowrap;
-          flex-shrink: 0;
-          transition: background 0.15s, color 0.15s;
+          font-size: 0.6rem;
+          font-weight: 600;
+          color: rgba(11,7,21,0.4);
+          transition: color 0.15s, background 0.15s;
         }
 
-        .mobile-link:hover { background: rgba(11,7,21,0.04); color: ${ink}; }
-        .mobile-link.active { background: rgba(124,77,255,0.1); color: ${purple}; }
+        .mobile-link:hover  { color: ${ink}; }
+        .mobile-link.active { color: ${purple}; background: rgba(124,77,255,0.08); }
 
-        @media (max-width: 768px) {
-          .nav-links    { display: none; }
-          .mobile-nav   { display: flex; }
-          .user-info    { display: none; }
-          .logout-btn span { display: none; }
-          .logout-btn   { padding: 6px 8px; }
+        @media (max-width: 640px) {
+          .sidebar     { display: none; }
+          .mobile-bar  { display: flex; }
         }
       `}</style>
 
-      <nav className="nav-root">
-        <div className="nav-inner">
+      {/* ── Sidebar ── */}
+      <nav className={`sidebar ${collapsed ? 'collapsed' : 'expanded'}`}>
 
-          {/* Logo */}
-          <NavLink to="/" className="nav-logo">
-            <div className="logo-icon">
-              <Phone size={16} color="#fff" strokeWidth={2.2} />
-            </div>
-            <span className="logo-text">CRM Portal</span>
-          </NavLink>
-
-          {/* Desktop links */}
-          <div className="nav-links">
-            {navLinks.map(({ to, label, Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-              >
-                <Icon size={14} strokeWidth={2.2} />
-                {label}
+        {/* Header */}
+        <div className="sidebar-header">
+          {!collapsed && (
+            <>
+              <NavLink to="/" className="nav-logo">
+                <div className="logo-icon">
+                  <Phone size={16} color="#fff" strokeWidth={2.2} />
+                </div>
+                <span className="logo-text">CRM Portal</span>
               </NavLink>
-            ))}
-          </div>
+              <button className="collapse-btn" onClick={() => setCollapsed(true)} aria-label="Collapse sidebar">
+                <PanelLeftClose size={14} strokeWidth={2.2} />
+              </button>
+            </>
+          )}
+          {collapsed && (
+            <button className="expand-btn" onClick={() => setCollapsed(false)} aria-label="Expand sidebar">
+              <PanelLeftOpen size={16} strokeWidth={2.2} />
+            </button>
+          )}
+        </div>
 
-          {/* Right side */}
-          <div className="nav-right">
+        {/* Nav links */}
+        <div className="sidebar-nav">
+          <div className="nav-section-label">Navigation</div>
+          {navLinks.map(({ to, label, Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              title={collapsed ? label : undefined}
+            >
+              <Icon size={16} strokeWidth={2.2} />
+              <span className="nav-link-label">{label}</span>
+            </NavLink>
+          ))}
+        </div>
 
-            {/* Bell — agent only */}
-            {user?.role === 'agent' && (
-              <div className="bell-wrap">
-                <button
-                  className={`bell-btn${alertStats.total > 0 ? ' has-alert' : ''}`}
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  aria-label="Notifications"
-                >
+        {/* Footer */}
+        <div className="sidebar-footer">
+
+          {/* Bell — agent only */}
+          {user?.role === 'agent' && (
+            <div className="bell-row">
+              <button
+                className={`bell-btn${alertStats.total > 0 ? ' has-alert' : ''}`}
+                onClick={() => setShowDropdown(!showDropdown)}
+                aria-label="Notifications"
+                title={collapsed ? 'Notifications' : undefined}
+              >
+                <span className="bell-icon-wrap">
                   <Bell size={16} strokeWidth={2.2} />
                   {alertStats.total > 0 && (
                     <span className={`bell-badge ${alertStats.overdue > 0 ? 'overdue' : 'upcoming'}`}>
                       {alertStats.total > 9 ? '9+' : alertStats.total}
                     </span>
                   )}
-                </button>
-
-                {showDropdown && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
-                    <div className="bell-dropdown">
-
-                      <div className="dropdown-header">
-                        <div className="dropdown-title">
-                          <Bell size={13} strokeWidth={2.2} />
-                          Follow-up Alerts
-                        </div>
-                        {alertStats.total > 0 && (
-                          <span className={`dropdown-count ${alertStats.overdue > 0 ? 'overdue' : 'upcoming'}`}>
-                            {alertStats.total} pending
-                          </span>
-                        )}
-                      </div>
-
-                      {alerts.length === 0 ? (
-                        <div className="dropdown-empty">
-                          <div className="dropdown-empty-icon">
-                            <CheckCircle2 size={18} strokeWidth={2} />
-                          </div>
-                          <span className="dropdown-empty-text">No pending follow-ups</span>
-                        </div>
-                      ) : (
-                        <div className="alert-list">
-                          {alerts.slice(0, 6).map((alert) => (
-                            <div key={alert.leadId} className={`alert-item ${alert.overdue ? 'overdue' : 'upcoming'}`}>
-                              <div className={`alert-dot ${alert.overdue ? 'overdue' : 'upcoming'}`} />
-                              <div className="alert-info">
-                                <div className="alert-name">{alert.name}</div>
-                                <div className="alert-meta">
-                                  {alert.phone} · {new Date(alert.followUpDate).toLocaleString('en-IN', {
-                                    day: '2-digit', month: 'short',
-                                    hour: '2-digit', minute: '2-digit',
-                                  })}
-                                </div>
-                              </div>
-                              <span className={`alert-tag ${alert.overdue ? 'overdue' : 'upcoming'}`}>
-                                {alert.overdue ? 'Overdue' : 'Today'}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="dropdown-footer" onClick={() => { setShowDropdown(false); navigate('/agent/my-leads'); }}>
-                        See all leads <ChevronRight size={13} />
-                      </div>
-                    </div>
-                  </>
+                </span>
+                <span className="bell-btn-label">Alerts</span>
+                {!collapsed && alertStats.total > 0 && (
+                  <span
+                    className={`dropdown-count ${alertStats.overdue > 0 ? 'overdue' : 'upcoming'}`}
+                    style={{ marginLeft: 'auto' }}
+                  >
+                    {alertStats.total}
+                  </span>
                 )}
-              </div>
-            )}
+              </button>
 
-            {/* User pill */}
-            <div className="user-pill">
-              <div className="user-avatar">
-                {user?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-              </div>
-              <div className="user-info">
-                <span className="user-name">{user?.name}</span>
-                <span className="user-role">{user?.role}</span>
-              </div>
+              {showDropdown && (
+                <>
+                  <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+                    onClick={() => setShowDropdown(false)}
+                  />
+                  <div className="bell-dropdown">
+                    <div className="dropdown-header">
+                      <div className="dropdown-title">
+                        <Bell size={13} strokeWidth={2.2} />
+                        Follow-up Alerts
+                      </div>
+                      {alertStats.total > 0 && (
+                        <span className={`dropdown-count ${alertStats.overdue > 0 ? 'overdue' : 'upcoming'}`}>
+                          {alertStats.total} pending
+                        </span>
+                      )}
+                    </div>
+
+                    {alerts.length === 0 ? (
+                      <div className="dropdown-empty">
+                        <div className="dropdown-empty-icon">
+                          <CheckCircle2 size={18} strokeWidth={2} />
+                        </div>
+                        <span className="dropdown-empty-text">No pending follow-ups</span>
+                      </div>
+                    ) : (
+                      <div className="alert-list">
+                        {alerts.slice(0, 6).map((alert) => (
+                          <div key={alert.leadId} className={`alert-item ${alert.overdue ? 'overdue' : 'upcoming'}`}>
+                            <div className={`alert-dot ${alert.overdue ? 'overdue' : 'upcoming'}`} />
+                            <div className="alert-info">
+                              <div className="alert-name">{alert.name}</div>
+                              <div className="alert-meta">
+                                {alert.phone} · {new Date(alert.followUpDate).toLocaleString('en-IN', {
+                                  day: '2-digit', month: 'short',
+                                  hour: '2-digit', minute: '2-digit',
+                                })}
+                              </div>
+                            </div>
+                            <span className={`alert-tag ${alert.overdue ? 'overdue' : 'upcoming'}`}>
+                              {alert.overdue ? 'Overdue' : 'Today'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div
+                      className="dropdown-footer"
+                      onClick={() => { setShowDropdown(false); navigate('/agent/my-leads'); }}
+                    >
+                      See all leads <ChevronRight size={13} />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
+          )}
 
-            {/* Logout */}
-            <button className="logout-btn" onClick={handleLogout}>
-              <LogOut size={14} strokeWidth={2.2} />
-              <span>Logout</span>
-            </button>
+          {/* User pill */}
+          <div className="user-pill" title={collapsed ? user?.name : undefined}>
+            <div className="user-avatar">{initials}</div>
+            <div className="user-info">
+              <span className="user-name">{user?.name}</span>
+              <span className="user-role">{user?.role}</span>
+            </div>
           </div>
-        </div>
 
-        {/* Mobile nav */}
-        <div className="mobile-nav">
-          {navLinks.map(({ to, label, Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) => `mobile-link${isActive ? ' active' : ''}`}
-            >
-              <Icon size={13} strokeWidth={2.2} />
-              {label}
-            </NavLink>
-          ))}
+          {/* Logout */}
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+            title={collapsed ? 'Logout' : undefined}
+          >
+            <LogOut size={15} strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <span className="logout-btn-label">Logout</span>
+          </button>
         </div>
+      </nav>
+
+      {/* ── Mobile bottom bar ── */}
+      <nav className="mobile-bar">
+        {navLinks.map(({ to, label, Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) => `mobile-link${isActive ? ' active' : ''}`}
+          >
+            <Icon size={18} strokeWidth={2.2} />
+            {label}
+          </NavLink>
+        ))}
+        {user?.role === 'agent' && (
+          <button
+            className={`mobile-link${alertStats.total > 0 ? ' active' : ''}`}
+            style={{ border: 'none', background: 'transparent', cursor: 'pointer', position: 'relative' }}
+            onClick={() => navigate('/agent/my-leads')}
+          >
+            <span style={{ position: 'relative', display: 'inline-flex' }}>
+              <Bell size={18} strokeWidth={2.2} />
+              {alertStats.total > 0 && (
+                <span
+                  style={{
+                    position: 'absolute', top: -4, right: -4,
+                    width: 14, height: 14, borderRadius: '50%',
+                    background: alertStats.overdue > 0 ? '#dc2626' : '#ea580c',
+                    fontSize: '0.48rem', fontWeight: 800, color: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: '2px solid #fff',
+                  }}
+                >
+                  {alertStats.total > 9 ? '9+' : alertStats.total}
+                </span>
+              )}
+            </span>
+            Alerts
+          </button>
+        )}
       </nav>
     </>
   );
