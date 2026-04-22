@@ -1,40 +1,44 @@
-import { useState, useEffect } from 'react';
-import API from '../../api/axios';
-import LeadCard from '../../components/LeadCard';
-import Pagination from '../../components/Pagination';
+import { useState, useEffect } from "react";
+import API from "../../api/axios";
+import LeadCard from "../../components/LeadCard";
+import Pagination from "../../components/Pagination";
 
 const STATUS_FILTERS = [
-  'All',
-  'New',
-  'Contacted',
-  'Follow-Up',
-  'Interested',
-  'Not Interested',
+  "All",
+  "New",
+  "Contacted",
+  "Follow-Up",
+  "Interested",
+  "Not Interested",
 ];
 
 export default function MyLeads() {
-  const [leads, setLeads]               = useState([]);
-  const [loading, setLoading]           = useState(true);
+  const [leads, setLeads] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [searchInput, setSearchInput]   = useState('');
-  const [search, setSearch]             = useState('');
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
 
   // ── Pagination State ─────────────────────────────────
-  const [pagination, setPagination]   = useState(null);
+  const [pagination, setPagination] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit] = useState(12); // 12 cards — 3 per row
 
   // ── Fetch Leads with Pagination ──────────────────────
-  const fetchLeads = async (page = 1, searchVal = search, filterVal = activeFilter) => {
+  const fetchLeads = async (
+    page = 1,
+    searchVal = search,
+    filterVal = activeFilter,
+  ) => {
     try {
       setLoading(true);
 
       const params = new URLSearchParams({
         page,
         limit,
-        ...(filterVal !== 'All' && { status: filterVal }),
-        ...(searchVal           && { search: searchVal }),
+        ...(filterVal !== "All" && { status: filterVal }),
+        ...(searchVal && { search: searchVal }),
       });
 
       const res = await API.get(`/leads/my-leads?${params}`);
@@ -73,20 +77,19 @@ export default function MyLeads() {
   const handlePageChange = (page) => {
     setCurrentPage(page);
     fetchLeads(page, search, activeFilter);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="p-6">
-
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">📋 My Leads</h1>
+        <h1 className="text-2xl font-bold text-gray-800"> My Leads</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Total:{' '}
+          Total:{" "}
           <span className="font-medium text-gray-700">
             {pagination?.totalLeads || 0}
-          </span>{' '}
+          </span>{" "}
           leads assigned
         </p>
       </div>
@@ -106,10 +109,10 @@ export default function MyLeads() {
           <button
             key={f}
             onClick={() => setActiveFilter(f)}
-            className={`text-xs px-3 py-1.5 rounded-full font-medium transition ${
+            className={`text-xs  px-4 py-3 rounded-full font-medium transition ${
               activeFilter === f
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? "bg-[#E9E2FF] text-[#7c4dff]"
+                : "bg-gray-100 text-gray-600 hover:bg-[#0B07150D]"
             }`}
           >
             {f}
@@ -133,12 +136,12 @@ export default function MyLeads() {
         <div className="text-center py-16 text-gray-400">
           <div className="text-4xl mb-2">📭</div>
           <p>Koi lead nahi mili</p>
-          {(searchInput || activeFilter !== 'All') && (
+          {(searchInput || activeFilter !== "All") && (
             <button
               onClick={() => {
-                setSearchInput('');
-                setSearch('');
-                setActiveFilter('All');
+                setSearchInput("");
+                setSearch("");
+                setActiveFilter("All");
               }}
               className="mt-3 text-blue-600 text-sm underline"
             >
@@ -159,15 +162,11 @@ export default function MyLeads() {
           </div>
 
           {/* Pagination */}
-          <Pagination
-            pagination={pagination}
-            onPageChange={handlePageChange}
-          />
+          <Pagination pagination={pagination} onPageChange={handlePageChange} />
         </>
       )}
 
       {/* Call Modal */}
-    
     </div>
   );
 }

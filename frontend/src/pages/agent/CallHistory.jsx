@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
-import API from '../../api/axios';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Phone, Clock, User, FileText, Calendar } from "lucide-react";
+import API from "../../api/axios";
 
 const DISPOSITION_COLORS = {
-  'Answered': 'bg-green-100 text-green-700',
-  'No Answer': 'bg-red-100 text-red-700',
-  'Busy': 'bg-yellow-100 text-yellow-700',
-  'Voicemail': 'bg-blue-100 text-blue-700',
-  'Wrong Number': 'bg-gray-100 text-gray-600',
-  'Callback Requested': 'bg-purple-100 text-purple-700',
+  Answered: "bg-green-100 text-green-700",
+  "No Answer": "bg-red-100 text-red-700",
+  Busy: "bg-yellow-100 text-yellow-700",
+  Voicemail: "bg-blue-100 text-blue-700",
+  "Wrong Number": "bg-gray-100 text-gray-600",
+  "Callback Requested": "bg-purple-100 text-purple-700",
 };
 
 export default function CallHistory() {
@@ -17,7 +19,7 @@ export default function CallHistory() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await API.get('/call-logs/my-logs');
+        const res = await API.get("/call-logs/my-logs");
         setLogs(res.data.logs);
       } catch (err) {
         console.error(err);
@@ -29,60 +31,101 @@ export default function CallHistory() {
   }, []);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">📞 Call History</h1>
+    <div className="p-6 bg-gradient-to-br from-purple-50 via-gray-50 to-white min-h-screen">
+      {/* Header */}
+      <h1 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+        {/* <Phone className="w-6 h-6 text-purple-600" /> */}
+        Call History
+      </h1>
 
       {loading ? (
-        <div className="text-center py-16 text-gray-400">⏳ Loading...</div>
+        <div className="text-center py-16 text-gray-400"> Loading...</div>
       ) : logs.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
-          <div className="text-4xl mb-2">📭</div>
-          <p>No call history Till </p>
+          <p>No call history yet</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: 0.08,
+              },
+            },
+          }}
+          className="space-y-4 "
+        >
           {logs.map((log) => (
-            <div
+            <motion.div
               key={log.id}
-              className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              whileHover={{ y: -4, scale: 1.01 }}
+              transition={{ duration: 0.25 }}
+              className="bg-white/70 backdrop-blur-lg  hover:bg-[#f5f4fa] border border-gray-200 rounded-2xl p-5 flex flex-col sm:flex-row justify-between gap-4 shadow-sm hover:shadow-lg transition-all"
             >
-              {/* Lead Info */}
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800">
-                  {log.lead?.name}
-                </p>
-                <p className="text-sm text-gray-500">📱 {log.lead?.phone}</p>
-                {log.notes && (
-                  <p className="text-xs text-gray-400 mt-1 line-clamp-1">
-                    📝 {log.notes}
+              {/* LEFT */}
+              <div className="flex items-start gap-2">
+                <div className="bg-[#7c4dff] p-2 rounded-full">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+
+                <div>
+                  <p className="font-semibold text-gray-900">
+                    {log.lead?.name || "Unknown"}
                   </p>
-                )}
+
+                  <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                    <Phone className="w-4 h-4" />
+                    {log.lead?.phone}
+                  </p>
+
+                  {log.notes && (
+                    <p className="text-sm text-gray-500 mt-2 flex items-center gap-1 line-clamp-1">
+                      <FileText className="w-4 h-4" />
+                      {log.notes}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Disposition */}
-              <div className="flex flex-col items-end gap-1">
-                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                  DISPOSITION_COLORS[log.disposition]
-                }`}>
+              {/* RIGHT */}
+              <div className="flex flex-col items-end gap-1 text-right">
+                <span
+                  className={`text-xs px-3 py-1 rounded-full font-medium ${
+                    DISPOSITION_COLORS[log.disposition]
+                  }`}
+                >
                   {log.disposition}
                 </span>
-                <span className="text-xs text-gray-400">
-                  🕐 {new Date(log.calledAt).toLocaleString('en-IN')}
-                </span>
+
+                <div className="text-sm text-gray-400 flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {new Date(log.calledAt).toLocaleString("en-IN")}
+                </div>
+
                 {log.callDuration > 0 && (
-                  <span className="text-xs text-gray-400">
-                    ⏱ {Math.floor(log.callDuration / 60)}m {log.callDuration % 60}s
-                  </span>
+                  <div className="text-sm text-gray-400">
+                    {Math.floor(log.callDuration / 60)}m {log.callDuration % 60}
+                    s
+                  </div>
                 )}
+
                 {log.followUpDate && (
-                  <span className="text-xs text-purple-600">
-                    📅 {new Date(log.followUpDate).toLocaleDateString('en-IN')}
-                  </span>
+                  <div className="text-sm text-purple-600 flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {new Date(log.followUpDate).toLocaleDateString("en-IN")}
+                  </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );
