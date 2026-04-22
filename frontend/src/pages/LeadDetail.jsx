@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import LeadInfo from '../components/LeadDetail/LeadInfo';
-import CallTimeline from '../components/LeadDetail/CallTimeline';
+import LeadInfo from '../components/leaddetail/LeadInfo';
+import CallTimeline from '../components/leaddetail/CallTimeline';
 import CallModal from '../components/CallModal';
 
 export default function LeadDetail() {
