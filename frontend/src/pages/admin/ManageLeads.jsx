@@ -167,7 +167,7 @@ const urlStatus = searchParams.get('status');
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">📋 Manage Leads</h1>
+          <h1 className="text-3xl font-bold text-gray-900 font-manrope">Manage Leads</h1>
           <p className="text-gray-500 text-sm mt-1">
             Total: {pagination?.totalLeads || 0} leads
           </p>
@@ -279,14 +279,14 @@ const urlStatus = searchParams.get('status');
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {leads.map((lead, index) => (
-                    <tr key={lead.id} className="hover:bg-gray-50"       onClick={() => navigate(`/leads/${lead.id}`)}>
+                    <tr key={lead.id} className="hover:bg-gray-50"       >
                       {/* Row number */}
                       <td className="px-4 py-3 text-gray-400 text-xs">
                         {(currentPage - 1) * limit + index + 1}
                       </td>
                       <td className="px-4 py-3">
                         <p
-                          className="font-medium text-blue-600 hover:underline cursor-pointer"
+                          className="font-medium text-blue-600 hover:underline cursor-pointer" onClick={() => navigate(`/leads/${lead.id}`)}
                     
                         >
                           {lead.name}
