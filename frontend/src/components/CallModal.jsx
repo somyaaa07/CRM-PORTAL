@@ -14,6 +14,7 @@ const DISPOSITIONS = [
 export default function CallModal({ lead, onClose, onSaved }) {
   const { addToast } = useToast();
 
+  // ✅ useState FIRST — always before functions
   const [form, setForm] = useState({
     disposition: '',
     notes: '',
@@ -24,9 +25,31 @@ export default function CallModal({ lead, onClose, onSaved }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // ✅ Fixed: backticks + PUT method
+  const handleToggleAlert = async () => {
+    const newStatus = !form.alertEnabled;
+    try {
+      await API.put(`/leads/${lead.id}/status`, {
+        alertEnabled: newStatus,
+      });
+      setForm({ ...form, alertEnabled: newStatus });
+      addToast({
+        message: newStatus
+          ? '🔔 Follow-up alert enabled'
+          : '🔕 Follow-up alert disabled',
+        type: 'success',
+      });
+    } catch (err) {
+      addToast({
+        message: '❌ Failed to update alert',
+        type: 'error',
+      });
+    }
+  };
+
   const handleSave = async () => {
     if (!form.disposition) {
-      setError('❌Necessary to select Disposition.');
+      setError('❌ Necessary to select Disposition.');
       return;
     }
     setLoading(true);
@@ -38,11 +61,19 @@ export default function CallModal({ lead, onClose, onSaved }) {
         callDuration: Number(form.callDuration) || 0,
       });
 
-      // ✅ form.followUpDate — form object se lo
+      if(form.followUpDate){
+        await API.put(`leads/${lead.id}/status`,{
+          status : 'Follow-Up',
+          followUpDate : form.followUpDate,
+          alertEnabled : form.alertEnabled
+
+        })
+      }
+
       addToast({
         message: form.followUpDate
-          ? '✅ Call log saved! Follow-up set .'
-          : '✅ Call log saved! Alert clear ',
+          ? '✅ Call log saved! Follow-up set.'
+          : '✅ Call log saved!',
         type: 'success',
       });
 
@@ -116,7 +147,7 @@ export default function CallModal({ lead, onClose, onSaved }) {
             </label>
             <textarea
               rows={3}
-              placeholder="Remark or notes ... "
+              placeholder="Remark or notes ..."
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
@@ -142,8 +173,9 @@ export default function CallModal({ lead, onClose, onSaved }) {
               <p className="text-sm font-medium text-gray-800">🔔 Follow-up Alert</p>
               <p className="text-xs text-gray-500">On Follow Up date We'll provide you the reminder</p>
             </div>
+            {/* ✅ Now calls handleToggleAlert which hits the API */}
             <button
-              onClick={() => setForm({ ...form, alertEnabled: !form.alertEnabled })}
+              onClick={handleToggleAlert}
               className={`w-12 h-6 rounded-full transition-colors ${
                 form.alertEnabled ? 'bg-blue-600' : 'bg-gray-300'
               }`}

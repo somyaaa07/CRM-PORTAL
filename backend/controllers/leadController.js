@@ -1,5 +1,5 @@
-import { Lead, User, CallLog } from '../models/index.js'; // ← CallLog add kiya
-import { Op } from 'sequelize';
+import { Lead, User, CallLog } from '../models/index.js';
+import { Op, Sequelize as sequelize } from 'sequelize';
 import xlsx from 'xlsx';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -27,7 +27,7 @@ const addLead = async (req, res) => {
   }
 };
 
-// ─── Saare Leads Lo (Admin) — With Pagination ──────────────
+// ─── Saare Leads Lo (Admin) — Pagination + Priority Sort ───
 const getAllLeads = async (req, res) => {
   try {
     const {
@@ -52,6 +52,21 @@ const getAllLeads = async (req, res) => {
     const limitNum = Math.min(100, parseInt(limit, 10));
     const offset   = (pageNum - 1) * limitNum;
 
+    // ── Smart Sorting ──────────────────────────────────────
+    // Filter laga hai → filtered leads pehle
+    // Filter nahi → latest first
+    const order = status
+      ? [
+          [
+            sequelize.literal(
+              `CASE WHEN status = '${status}' THEN 0 ELSE 1 END`
+            ),
+            'ASC',
+          ],
+          ['createdAt', 'DESC'],
+        ]
+      : [['createdAt', 'DESC']];
+
     const { count, rows: leads } = await Lead.findAndCountAll({
       where,
       include: [{
@@ -59,7 +74,7 @@ const getAllLeads = async (req, res) => {
         as: 'assignedAgent',
         attributes: ['id', 'name', 'email'],
       }],
-      order:  [['createdAt', 'DESC']],
+      order,
       limit:  limitNum,
       offset,
     });
@@ -84,7 +99,7 @@ const getAllLeads = async (req, res) => {
   }
 };
 
-// ─── Agent Ke Apne Leads — With Pagination ─────────────────
+// ─── Agent Ke Apne Leads — Pagination + Priority Sort ──────
 const getMyLeads = async (req, res) => {
   try {
     const agentId = req.user.id;
@@ -95,9 +110,7 @@ const getMyLeads = async (req, res) => {
       limit = 12,
     } = req.query;
 
-    // ── Filters ────────────────────────────────────────────
     const where = { assignedTo: agentId };
-
     if (status) where.status = status;
     if (search) {
       where[Op.or] = [
@@ -106,17 +119,30 @@ const getMyLeads = async (req, res) => {
       ];
     }
 
-    // ── Pagination ─────────────────────────────────────────
     const pageNum  = Math.max(1, parseInt(page,  10));
     const limitNum = Math.min(100, parseInt(limit, 10));
     const offset   = (pageNum - 1) * limitNum;
 
+    // ── Smart Sorting ──────────────────────────────────────
+    const order = status
+      ? [
+          [
+            sequelize.literal(
+              `CASE WHEN status = '${status}' THEN 0 ELSE 1 END`
+            ),
+            'ASC',
+          ],
+          ['followUpDate', 'ASC'],
+          ['createdAt',    'DESC'],
+        ]
+      : [
+          ['followUpDate', 'ASC'],
+          ['createdAt',    'DESC'],
+        ];
+
     const { count, rows: leads } = await Lead.findAndCountAll({
       where,
-      order: [
-        ['followUpDate', 'ASC'],
-        ['createdAt',    'DESC'],
-      ],
+      order,
       limit:  limitNum,
       offset,
     });
@@ -218,7 +244,6 @@ const getLeadDetail = async (req, res) => {
   try {
     const { leadId } = req.params;
 
-    // Lead with agent info
     const lead = await Lead.findByPk(leadId, {
       include: [{
         model: User,
@@ -231,7 +256,6 @@ const getLeadDetail = async (req, res) => {
       return res.status(404).json({ message: '❌ Lead nahi mili.' });
     }
 
-    // Call logs with agent info
     const callLogs = await CallLog.findAll({
       where: { leadId },
       include: [{
@@ -262,9 +286,6 @@ const bulkUpload = async (req, res) => {
       ? parseInt(rawAgentId, 10)
       : null;
 
-    console.log('📌 Raw agentId:', rawAgentId);
-    console.log('📌 Parsed agentId:', agentId);
-
     let assignedAgent = null;
 
     if (agentId) {
@@ -277,7 +298,6 @@ const bulkUpload = async (req, res) => {
           message: '❌ Agent nahi mila ya inactive hai.',
         });
       }
-      console.log('✅ Agent found:', assignedAgent.name);
     }
 
     const workbook  = xlsx.readFile(req.file.path);
@@ -289,9 +309,6 @@ const bulkUpload = async (req, res) => {
       defval: '',
     });
 
-    console.log('📋 First 5 rows:', allRows.slice(0, 5));
-
-    // Smart header detection
     let headerRowIndex = -1;
 
     for (let i = 0; i < Math.min(allRows.length, 15); i++) {
@@ -311,8 +328,6 @@ const bulkUpload = async (req, res) => {
       }
     }
 
-    console.log('📋 Header found at row index:', headerRowIndex);
-
     if (headerRowIndex === -1) {
       fs.unlink(req.file.path, () => {});
       return res.status(400).json({
@@ -322,9 +337,6 @@ const bulkUpload = async (req, res) => {
 
     const headerRow = allRows[headerRowIndex];
     const dataRows  = allRows.slice(headerRowIndex + 1);
-
-    console.log('📋 Column headers:', headerRow);
-    console.log('📋 Total data rows:', dataRows.length);
 
     const nameIdx = headerRow.findIndex((h) =>
       String(h).toLowerCase().includes('name')
@@ -344,8 +356,6 @@ const bulkUpload = async (req, res) => {
       String(h).toLowerCase().includes('category')    ||
       String(h).toLowerCase().includes('type')
     );
-
-    console.log(`📋 Indexes → Name:${nameIdx} Phone:${phoneIdx} Email:${emailIdx} Source:${sourceIdx}`);
 
     if (nameIdx === -1 || phoneIdx === -1) {
       fs.unlink(req.file.path, () => {});
@@ -374,16 +384,13 @@ const bulkUpload = async (req, res) => {
       const email = emailIdx  >= 0 ? String(row[emailIdx]  || '').trim() : '';
       const source= sourceIdx >= 0 ? String(row[sourceIdx] || '').trim() : 'Excel Import';
 
-      // Empty rows skip
       if (!name && !phone) return;
 
-      // Date separator rows skip
       const looksLikeDateRow =
         /^\(?\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\)?$/.test(name) ||
         /^\(?\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\)?$/.test(phone);
       if (looksLikeDateRow) return;
 
-      // Brackets-only name skip
       const cleanName = name.replace(/[\(\)\[\]\{\}]/g, '').trim();
       if (!cleanName) return;
 
@@ -431,8 +438,6 @@ const bulkUpload = async (req, res) => {
         assignedTo: agentId,
       });
     });
-
-    console.log(`📌 Valid: ${validLeads.length} | Failed: ${failedRows.length}`);
 
     let insertedCount = 0;
     const BATCH_SIZE  = 500;

@@ -9,25 +9,26 @@ import {
   getAgentReports,
   getAgentDailyStats,
   getAdminDailyStats,
-  getSingleAgentStats
+  getSingleAgentStats,
 } from '../controllers/adminController.js';
 import { auth, adminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
-router.get('/my-stats', auth, getAgentDailyStats)
 
+// ── Agent bhi access kar sake ─────────────────────────────
+router.get('/my-stats', auth, getAgentDailyStats);
 
-// Saare admin routes protected + adminOnly
+// ── Ab se saare routes Admin Only ─────────────────────────
 router.use(auth, adminOnly);
 
-router.get('/stats',                    getDashboardStats);
-router.get('/agents',                   getAllAgents);
-router.post('/agents',                  addAgent);
-router.put('/agents/:agentId/toggle',   toggleAgentStatus);
-router.put('/agents/:agentId/password', resetAgentPassword);
-router.delete('/leads/:leadId',         deleteLead);
-router.get('/reports',                  getAgentReports);
-router.get('/overall-stats', getAdminDailyStats);
-router.get("/agent-stats/:agentId",getSingleAgentStats)
+router.get('/stats',                        getDashboardStats);
+router.get('/agents',                       getAllAgents);
+router.post('/agents',                      addAgent);
+router.put('/agents/:agentId/toggle',       toggleAgentStatus);
+router.put('/agents/:agentId/password',     resetAgentPassword);
+router.delete('/leads/:leadId',             deleteLead);
+router.get('/reports',                      getAgentReports);
+router.get('/overall-stats',                getAdminDailyStats);
+router.get('/agent-stats/:agentId',         getSingleAgentStats);
 
 export default router;

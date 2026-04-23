@@ -1,62 +1,64 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import API from '../../api/axios';
 import { useToast } from '../../context/ToastContext';
 import Pagination from '../../components/Pagination';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-
 
 const STATUS_COLORS = {
-  'New': 'bg-blue-100 text-blue-700',
-  'Contacted': 'bg-yellow-100 text-yellow-700',
-  'Interested': 'bg-green-100 text-green-700',
-  'Not Interested': 'bg-red-100 text-red-700',
-  'Follow-Up': 'bg-purple-100 text-purple-700',
-  'Converted': 'bg-emerald-100 text-emerald-700',
-  'Lost': 'bg-gray-100 text-gray-600',
+  'New':           'bg-blue-100 text-blue-700',
+  'Contacted':     'bg-yellow-100 text-yellow-700',
+  'Interested':    'bg-green-100 text-green-700',
+  'Not Interested':'bg-red-100 text-red-700',
+  'Follow-Up':     'bg-purple-100 text-purple-700',
+  'Converted':     'bg-emerald-100 text-emerald-700',
+  'Lost':          'bg-gray-100 text-gray-600',
 };
 
 export default function ManageLeads() {
-  const { addToast } = useToast();
-const [searchParams] = useSearchParams();
-  const [leads, setLeads] = useState([]);
-  const [agents, setAgents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [search, setSearch] = useState('');
-  const [searchInput, setSearchInput] = useState(''); // Debounce ke liye
-  const [formLoading, setFormLoading] = useState(false);
+  const { addToast }     = useToast();
+  const navigate         = useNavigate();
+  const [searchParams]   = useSearchParams();
 
-  // ── Pagination State ───────────────────────────────────
-  const [pagination, setPagination] = useState(null);
+  const urlStatus = searchParams.get('status');
+
+  const [leads, setLeads]           = useState([]);
+  const [agents, setAgents]         = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [showForm, setShowForm]     = useState(false);
+  const [statusFilter, setStatusFilter] = useState(urlStatus || '');
+  const [searchInput, setSearchInput]   = useState('');
+  const [search, setSearch]             = useState('');
+  const [formLoading, setFormLoading]   = useState(false);
+
+  const [pagination, setPagination]   = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit] = useState(10); // Per page
+  const [limit, setLimit]             = useState(10);
 
   const [form, setForm] = useState({
     name: '', phone: '', email: '',
     source: 'Manual', priority: 'Medium', assignedTo: '',
   });
 
-const urlStatus = searchParams.get('status');
-  const [statusFilter , setStatusFilter] = useState(urlStatus || "" );
+  // ── URL status change ──────────────────────────────────
+  useEffect(() => {
+    if (urlStatus) setStatusFilter(urlStatus);
+  }, [urlStatus]);
 
-  useEffect(() =>{
-    if(urlStatus) {
-      setStatusFilter(urlStatus);
-      fetchLeads(1);
-    }
-  },[urlStatus]);  
-
-  // ── Fetch Leads with Pagination ────────────────────────
-  const fetchLeads = async (page = 1) => {
+  // ── Fetch Leads ────────────────────────────────────────
+  const fetchLeads = async (
+    page      = 1,
+    searchVal = search,
+    filterVal = statusFilter,
+    limitVal  = limit,
+  ) => {
     try {
       setLoading(true);
 
-      // Query params banao
       const params = new URLSearchParams({
         page,
-        limit,
-        ...(statusFilter && { status: statusFilter }),
-        ...(search && { search }),
+        limit: limitVal,
+        ...(filterVal && { status: filterVal }),
+        ...(searchVal && { search: searchVal }),
       });
 
       const res = await API.get(`/leads?${params}`);
@@ -69,7 +71,6 @@ const urlStatus = searchParams.get('status');
     }
   };
 
-  // ── Agents Fetch ───────────────────────────────────────
   const fetchAgents = async () => {
     try {
       const res = await API.get('/admin/agents');
@@ -81,54 +82,43 @@ const urlStatus = searchParams.get('status');
 
   useEffect(() => {
     fetchAgents();
+    fetchLeads(1);
   }, []);
 
-  // ── Filter/Search change hone pe page 1 se shuru karo ─
   useEffect(() => {
     setCurrentPage(1);
-    fetchLeads(1);
-  }, [statusFilter, search]);
+    fetchLeads(1, search, statusFilter);
+  }, [statusFilter]);
 
-  // ── Page change hone pe fetch karo ────────────────────
-  useEffect(() => {
-    fetchLeads(currentPage);
-  }, [currentPage]);
-
-  // ── Search Debounce (500ms wait) ───────────────────────
-  // Har keypress pe API call mat karo — 500ms baad karo
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(searchInput);
+      setCurrentPage(1);
+      fetchLeads(1, searchInput, statusFilter);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // ── Page Change Handler ────────────────────────────────
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Top pe scroll
+    fetchLeads(page, search, statusFilter);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleAddLead = async () => {
     if (!form.name || !form.phone) {
-      addToast({ message: '❌ Name or phone are necessary !', type: 'error' });
+      addToast({ message: '❌ Name aur phone zaroori hain!', type: 'error' });
       return;
     }
     try {
       setFormLoading(true);
-      await API.post('/leads', {
-        ...form,
-        assignedTo: form.assignedTo || null,
-      });
-      addToast({ message: '✅ Lead added !', type: 'success' });
-      setForm({
-        name: '', phone: '', email: '',
-        source: 'Manual', priority: 'Medium', assignedTo: '',
-      });
+      await API.post('/leads', { ...form, assignedTo: form.assignedTo || null });
+      addToast({ message: '✅ Lead add ho gayi!', type: 'success' });
+      setForm({ name: '', phone: '', email: '', source: 'Manual', priority: 'Medium', assignedTo: '' });
       setShowForm(false);
       fetchLeads(currentPage);
     } catch (err) {
-      addToast({ message: '❌ Error ', type: 'error' });
+      addToast({ message: '❌ Error aaya!', type: 'error' });
     } finally {
       setFormLoading(false);
     }
@@ -137,37 +127,34 @@ const urlStatus = searchParams.get('status');
   const handleAssign = async (leadId, agentId) => {
     try {
       await API.put(`/leads/${leadId}/assign`, { agentId });
-      addToast({ message: '✅ Lead assigned !', type: 'success' });
+      addToast({ message: '✅ Lead assign ho gayi!', type: 'success' });
       fetchLeads(currentPage);
     } catch (err) {
-      addToast({ message: '❌ Error !', type: 'error' });
+      addToast({ message: '❌ Error aaya!', type: 'error' });
     }
   };
 
   const handleDelete = async (leadId) => {
-    if (!window.confirm('Are you sure ? Leads Will delete!')) return;
+    if (!window.confirm('Kya aap sure hain? Lead delete ho jayegi!')) return;
     try {
       await API.delete(`/admin/leads/${leadId}`);
-      addToast({ message: '✅ Lead deleted!', type: 'success' });
-      // Agar last page pe sirf 1 lead thi toh prev page pe jao
+      addToast({ message: '✅ Lead delete ho gayi!', type: 'success' });
       if (leads.length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       } else {
         fetchLeads(currentPage);
       }
     } catch (err) {
-      addToast({ message: '❌ Error !', type: 'error' });
+      addToast({ message: '❌ Error aaya!', type: 'error' });
     }
   };
-
-  const navigate = useNavigate();
 
   return (
     <div className="p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 font-manrope">Manage Leads</h1>
+          <h1 className="text-2xl font-bold text-gray-800">📋 Manage Leads</h1>
           <p className="text-gray-500 text-sm mt-1">
             Total: {pagination?.totalLeads || 0} leads
           </p>
@@ -207,7 +194,7 @@ const urlStatus = searchParams.get('status');
             <select value={form.assignedTo}
               onChange={(e) => setForm({ ...form, assignedTo: e.target.value })}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">-- Do Agent Assign  --</option>
+              <option value="">-- Agent Assign Karo --</option>
               {agents.map((a) => (
                 <option key={a.id} value={a.id}>{a.name}</option>
               ))}
@@ -221,10 +208,10 @@ const urlStatus = searchParams.get('status');
       )}
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row gap-3 mb-2">
         <input
           type="text"
-          placeholder="🔍 Search name or phone..."
+          placeholder="🔍 Search name ya phone..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -235,25 +222,40 @@ const urlStatus = searchParams.get('status');
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Status</option>
-          {['New', 'Contacted', 'Interested', 'Not Interested', 'Follow-Up', 'Converted', 'Lost'].map((s) => (
+          {['New','Contacted','Interested','Not Interested','Follow-Up','Converted','Lost'].map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-
-        {/* Limit selector */}
         <select
           value={limit}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           onChange={(e) => {
+            setLimit(Number(e.target.value));
             setCurrentPage(1);
-            fetchLeads(1);
+            fetchLeads(1, search, statusFilter, Number(e.target.value));
           }}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {[10, 25, 50, 100].map((l) => (
-            <option key={l} value={l}>{l} page</option>
+            <option key={l} value={l}>{l} per page</option>
           ))}
         </select>
       </div>
+
+      {/* Sort Indicator */}
+      {statusFilter && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mb-4 flex items-center gap-2 text-xs text-blue-700">
+          <span>⬆️</span>
+          <span>
+            <strong>"{statusFilter}"</strong> leads top pe sort ho rahe hain
+          </span>
+          <button
+            onClick={() => setStatusFilter('')}
+            className="ml-auto text-blue-500 hover:text-blue-700 underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
 
       {/* Table */}
       {loading ? (
@@ -261,7 +263,7 @@ const urlStatus = searchParams.get('status');
       ) : leads.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <div className="text-4xl mb-2">📭</div>
-          <p>No Leads are there</p>
+          <p>Koi lead nahi mili</p>
         </div>
       ) : (
         <>
@@ -270,7 +272,7 @@ const urlStatus = searchParams.get('status');
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    {['#', 'Name', 'Phone', 'Status', 'Priority', 'Assigned To', 'Actions'].map((h) => (
+                    {['#','Name','Phone','Status','Priority','Assigned To','Actions'].map((h) => (
                       <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                         {h}
                       </th>
@@ -279,15 +281,18 @@ const urlStatus = searchParams.get('status');
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {leads.map((lead, index) => (
-                    <tr key={lead.id} className="hover:bg-gray-50"       >
-                      {/* Row number */}
+                    <tr key={lead.id} className={`hover:bg-gray-50 ${
+                      statusFilter && lead.status === statusFilter
+                        ? 'bg-blue-50/50'
+                        : ''
+                    }`}>
                       <td className="px-4 py-3 text-gray-400 text-xs">
                         {(currentPage - 1) * limit + index + 1}
                       </td>
                       <td className="px-4 py-3">
                         <p
-                          className="font-medium text-blue-600 hover:underline cursor-pointer" onClick={() => navigate(`/leads/${lead.id}`)}
-                    
+                          className="font-medium text-blue-600 hover:underline cursor-pointer"
+                          onClick={() => navigate(`/leads/${lead.id}`)}
                         >
                           {lead.name}
                         </p>
@@ -329,7 +334,6 @@ const urlStatus = searchParams.get('status');
             </div>
           </div>
 
-          {/* ── Pagination Component ── */}
           <Pagination
             pagination={pagination}
             onPageChange={handlePageChange}
