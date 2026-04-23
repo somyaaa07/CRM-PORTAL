@@ -31,102 +31,209 @@ export default function CallHistory() {
   }, []);
 
   return (
-    <div className="p-6 bg-gradient-to-br from-purple-50 via-gray-50 to-white min-h-screen">
-      {/* Header */}
-      <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-        {/* <Phone className="w-6 h-6 text-purple-600" /> */}
-        Call History
-      </h1>
+    // <div className="p-6 bg-gradient-to-br from-purple-50 via-gray-50 to-white min-h-screen">
+    //   {/* Header */}
+    //   <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+    //     {/* <Phone className="w-6 h-6 text-purple-600" /> */}
+    //     Call History
+    //   </h1>
 
-      {loading ? (
-        <div className="text-center py-16 text-gray-400"> Loading...</div>
-      ) : logs.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <p>No call history yet</p>
-        </div>
-      ) : (
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: 0.08,
-              },
-            },
-          }}
-          className="space-y-4 "
-        >
-          {logs.map((log) => (
-            <motion.div
-              key={log.id}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              whileHover={{ y: -4, scale: 1.01 }}
-              transition={{ duration: 0.25 }}
-              className="bg-white/70 backdrop-blur-lg  hover:bg-[#f5f4fa] border border-gray-200 rounded-2xl p-5 flex flex-col sm:flex-row justify-between gap-4 shadow-sm hover:shadow-lg transition-all"
-            >
-              {/* LEFT */}
-              <div className="flex items-start gap-2">
-                <div className="bg-[#7c4dff] p-2 rounded-full">
-                  <User className="w-6 h-6 text-white" />
-                </div>
+    //   {loading ? (
+    //     <div className="text-center py-16 text-gray-400"> Loading...</div>
+    //   ) : logs.length === 0 ? (
+    //     <div className="text-center py-16 text-gray-400">
+    //       <p>No call history yet</p>
+    //     </div>
+    //   ) : (
+    //     <motion.div
+    //       initial="hidden"
+    //       animate="visible"
+    //       variants={{
+    //         hidden: {},
+    //         visible: {
+    //           transition: {
+    //             staggerChildren: 0.08,
+    //           },
+    //         },
+    //       }}
+    //       className="space-y-4 "
+    //     >
+    //       {logs.map((log) => (
+    //         <motion.div
+    //           key={log.id}
+    //           variants={{
+    //             hidden: { opacity: 0, y: 20 },
+    //             visible: { opacity: 1, y: 0 },
+    //           }}
+    //           whileHover={{ y: -4, scale: 1.01 }}
+    //           transition={{ duration: 0.25 }}
+    //           className="bg-white/70 backdrop-blur-lg  hover:bg-[#f5f4fa] border border-gray-200 rounded-2xl p-5 flex flex-col sm:flex-row justify-between gap-4 shadow-sm hover:shadow-lg transition-all"
+    //         >
+    //           {/* LEFT */}
+    //           <div className="flex items-start gap-2">
+    //             <div className="bg-[#7c4dff] p-2 rounded-full">
+    //               <User className="w-6 h-6 text-white" />
+    //             </div>
 
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    {log.lead?.name || "Unknown"}
-                  </p>
+    //             <div>
+    //               <p className="font-semibold text-gray-900">
+    //                 {log.lead?.name || "Unknown"}
+    //               </p>
 
-                  <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-                    <Phone className="w-4 h-4" />
-                    {log.lead?.phone}
-                  </p>
+    //               <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+    //                 <Phone className="w-4 h-4" />
+    //                 {log.lead?.phone}
+    //               </p>
 
-                  {log.notes && (
-                    <p className="text-sm text-gray-500 mt-2 flex items-center gap-1 line-clamp-1">
-                      <FileText className="w-4 h-4" />
-                      {log.notes}
-                    </p>
-                  )}
-                </div>
-              </div>
+    //               {log.notes && (
+    //                 <p className="text-sm text-gray-500 mt-2 flex items-center gap-1 line-clamp-1">
+    //                   <FileText className="w-4 h-4" />
+    //                   {log.notes}
+    //                 </p>
+    //               )}
+    //             </div>
+    //           </div>
 
-              {/* RIGHT */}
-              <div className="flex flex-col items-end gap-1 text-right">
-                <span
-                  className={`text-xs px-3 py-1 rounded-full font-medium ${
-                    DISPOSITION_COLORS[log.disposition]
-                  }`}
-                >
-                  {log.disposition}
-                </span>
+    //           {/* RIGHT */}
+    //           <div className="flex flex-col items-end gap-1 text-right">
+    //             <span
+    //               className={`text-xs px-3 py-1 rounded-full font-medium ${
+    //                 DISPOSITION_COLORS[log.disposition]
+    //               }`}
+    //             >
+    //               {log.disposition}
+    //             </span>
 
-                <div className="text-sm text-gray-400 flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  {new Date(log.calledAt).toLocaleString("en-IN")}
-                </div>
+    //             <div className="text-sm text-gray-400 flex items-center gap-1">
+    //               <Clock className="w-4 h-4" />
+    //               {new Date(log.calledAt).toLocaleString("en-IN")}
+    //             </div>
 
-                {log.callDuration > 0 && (
-                  <div className="text-sm text-gray-400">
-                    {Math.floor(log.callDuration / 60)}m {log.callDuration % 60}
-                    s
-                  </div>
-                )}
+    //             {log.callDuration > 0 && (
+    //               <div className="text-sm text-gray-400">
+    //                 {Math.floor(log.callDuration / 60)}m {log.callDuration % 60}
+    //                 s
+    //               </div>
+    //             )}
 
-                {log.followUpDate && (
-                  <div className="text-sm text-purple-600 flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    {new Date(log.followUpDate).toLocaleDateString("en-IN")}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
+    //             {log.followUpDate && (
+    //               <div className="text-sm text-purple-600 flex items-center gap-1">
+    //                 <Calendar className="w-3 h-3" />
+    //                 {new Date(log.followUpDate).toLocaleDateString("en-IN")}
+    //               </div>
+    //             )}
+    //           </div>
+    //         </motion.div>
+    //       ))}
+    //     </motion.div>
+    //   )}
+    // </div>
+
+    <div className="p-6 bg-gradient-to-br from-purple-50 via-gray-50 to-white min-h-screen font-[Jost]">
+  
+  {/* Fonts */}
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap');
+  `}</style>
+
+  {/* Header */}
+  <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2 font-[Manrope]">
+    Call History
+  </h1>
+
+  {loading ? (
+    <div className="text-center py-16 text-gray-400">
+      Loading...
     </div>
+  ) : logs.length === 0 ? (
+    <div className="text-center py-16 text-gray-400">
+      <p>No call history yet</p>
+    </div>
+  ) : (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: 0.08,
+          },
+        },
+      }}
+      className="space-y-4"
+    >
+      {logs.map((log) => (
+        <motion.div
+          key={log.id}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.25 }}
+          className="bg-white/70 backdrop-blur-lg hover:bg-[#f5f4fa] border border-gray-200 rounded-2xl p-5 flex flex-col sm:flex-row justify-between gap-4 shadow-sm hover:shadow-lg transition-all"
+        >
+          
+          {/* LEFT */}
+          <div className="flex items-start gap-2">
+
+            <div className="bg-[#7c4dff] p-2 rounded-full">
+              <User className="w-6 h-6 text-white" />
+            </div>
+
+            <div>
+              <p className="font-semibold text-gray-900">
+                {log.lead?.name || "Unknown"}
+              </p>
+
+              <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                <Phone className="w-4 h-4" />
+                {log.lead?.phone}
+              </p>
+
+              {log.notes && (
+                <p className="text-sm text-gray-500 mt-2 flex items-center gap-1 line-clamp-1">
+                  <FileText className="w-4 h-4" />
+                  {log.notes}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT */}
+          <div className="flex flex-col items-end gap-1 text-right">
+
+            <span
+              className={`text-xs px-3 py-1 rounded-full font-medium ${
+                DISPOSITION_COLORS[log.disposition]
+              }`}
+            >
+              {log.disposition}
+            </span>
+
+            <div className="text-sm text-gray-400 flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              {new Date(log.calledAt).toLocaleString("en-IN")}
+            </div>
+
+            {log.callDuration > 0 && (
+              <div className="text-sm text-gray-400">
+                {Math.floor(log.callDuration / 60)}m {log.callDuration % 60}s
+              </div>
+            )}
+
+            {log.followUpDate && (
+              <div className="text-sm text-purple-600 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {new Date(log.followUpDate).toLocaleDateString("en-IN")}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      ))}
+    </motion.div>
+  )}
+</div>
   );
 }

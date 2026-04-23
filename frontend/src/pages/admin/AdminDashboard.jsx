@@ -184,7 +184,16 @@ const FontStyle = () => (
     .quick-link:hover { transform: translateX(3px); box-shadow: 0 4px 20px rgba(109,40,217,0.10); }
     .quick-link:hover .arrow-icon { opacity: 1; transform: translateX(2px); }
     .arrow-icon { opacity: 0; transition: all 0.18s ease; }
-  `}</style>
+  `}
+  
+  @media (min-width:320px) to (max-width:425px){
+
+  }
+  
+  
+  
+  
+  </style>
 );
 
 /* ─────────────────────────────────────────
