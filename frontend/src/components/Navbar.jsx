@@ -47,7 +47,6 @@ export default function Navbar() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
-        /* ── Sidebar shell ── */
         .sidebar {
           font-family: ${font};
           display: flex;
@@ -66,7 +65,6 @@ export default function Navbar() {
         .sidebar.expanded { width: 220px; }
         .sidebar.collapsed { width: 64px; }
 
-        /* ── Top: Logo + collapse toggle ── */
         .sidebar-header {
           display: flex;
           align-items: center;
@@ -115,7 +113,6 @@ export default function Navbar() {
         .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
         .sidebar.expanded  .logo-text { opacity: 1; width: auto; }
 
-        /* Toggle button */
         .collapse-btn {
           width: 28px;
           height: 28px;
@@ -138,7 +135,6 @@ export default function Navbar() {
 
         .sidebar.collapsed .collapse-btn { display: none; }
 
-        /* Collapsed expand button centered at top */
         .expand-btn {
           display: none;
           width: 34px;
@@ -153,9 +149,7 @@ export default function Navbar() {
           transition: background 0.15s, color 0.15s;
         }
 
-        .sidebar.collapsed .expand-btn {
-          display: flex;
-        }
+        .sidebar.collapsed .expand-btn { display: flex; }
 
         .expand-btn:hover {
           background: rgba(124,77,255,0.08);
@@ -163,7 +157,6 @@ export default function Navbar() {
           border-color: rgba(124,77,255,0.2);
         }
 
-        /* ── Nav links ── */
         .sidebar-nav {
           flex: 1;
           padding: 10px 10px;
@@ -217,7 +210,6 @@ export default function Navbar() {
         }
 
         .nav-link.active svg { color: ${purple}; }
-
         .nav-link svg { flex-shrink: 0; }
 
         .nav-link-label {
@@ -229,7 +221,6 @@ export default function Navbar() {
         .sidebar.expanded  .nav-link-label { opacity: 1; max-width: 200px; }
         .sidebar.collapsed .nav-link-label { opacity: 0; max-width: 0; width: 0; }
 
-        /* Active bar */
         .nav-link.active::before {
           content: '';
           position: absolute;
@@ -242,13 +233,11 @@ export default function Navbar() {
           border-radius: 0 3px 3px 0;
         }
 
-        /* Tooltip for collapsed mode */
         .sidebar.collapsed .nav-link {
           justify-content: center;
           padding: 9px 0;
         }
 
-        /* ── Bottom section ── */
         .sidebar-footer {
           padding: 10px;
           border-top: 1px solid rgba(11,7,21,0.07);
@@ -258,10 +247,7 @@ export default function Navbar() {
           flex-shrink: 0;
         }
 
-        /* Bell row */
-        .bell-row {
-          position: relative;
-        }
+        .bell-row { position: relative; }
 
         .bell-btn {
           width: 100%;
@@ -328,7 +314,6 @@ export default function Navbar() {
         .sidebar.expanded  .bell-btn-label { opacity: 1; max-width: 200px; }
         .sidebar.collapsed .bell-btn-label { opacity: 0; max-width: 0; width: 0; }
 
-        /* Dropdown (pops to the RIGHT in sidebar mode) */
         .bell-dropdown {
           position: absolute;
           left: calc(100% + 12px);
@@ -342,7 +327,6 @@ export default function Navbar() {
           overflow: hidden;
         }
 
-        /* When sidebar is expanded, dropdown opens upward above the bell row */
         .sidebar.expanded .bell-dropdown {
           left: 0;
           bottom: calc(100% + 8px);
@@ -405,12 +389,21 @@ export default function Navbar() {
         .alert-item {
           padding: 0.7rem 1rem;
           border-bottom: 1px solid rgba(11,7,21,0.05);
-          display: flex; align-items: flex-start; gap: 10px;
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          cursor: pointer;           /* ← NEW */
+          transition: background 0.15s; /* ← NEW */
         }
 
         .alert-item:last-child { border-bottom: none; }
         .alert-item.overdue  { background: rgba(220,38,38,0.03); }
         .alert-item.upcoming { background: rgba(234,88,12,0.02); }
+
+        /* ← NEW: Hover effect on alert items */
+        .alert-item:hover {
+          background: rgba(124,77,255,0.05) !important;
+        }
 
         .alert-dot {
           width: 7px; height: 7px; border-radius: 50%;
@@ -452,7 +445,6 @@ export default function Navbar() {
 
         .dropdown-footer:hover { background: rgba(124,77,255,0.05); }
 
-        /* User pill */
         .user-pill {
           display: flex;
           align-items: center;
@@ -497,7 +489,6 @@ export default function Navbar() {
           color: rgba(11,7,21,0.38); text-transform: capitalize;
         }
 
-        /* Logout button */
         .logout-btn {
           display: flex;
           align-items: center;
@@ -536,7 +527,6 @@ export default function Navbar() {
         .sidebar.expanded  .logout-btn-label { opacity: 1; max-width: 200px; }
         .sidebar.collapsed .logout-btn-label { opacity: 0; max-width: 0; width: 0; }
 
-        /* ── Mobile bottom bar (≤ 640px) ── */
         .mobile-bar {
           display: none;
           position: fixed;
@@ -589,13 +579,21 @@ export default function Navbar() {
                 </div>
                 <span className="logo-text">CRM Portal</span>
               </NavLink>
-              <button className="collapse-btn" onClick={() => setCollapsed(true)} aria-label="Collapse sidebar">
+              <button
+                className="collapse-btn"
+                onClick={() => setCollapsed(true)}
+                aria-label="Collapse sidebar"
+              >
                 <PanelLeftClose size={14} strokeWidth={2.2} />
               </button>
             </>
           )}
           {collapsed && (
-            <button className="expand-btn" onClick={() => setCollapsed(false)} aria-label="Expand sidebar">
+            <button
+              className="expand-btn"
+              onClick={() => setCollapsed(false)}
+              aria-label="Expand sidebar"
+            >
               <PanelLeftOpen size={16} strokeWidth={2.2} />
             </button>
           )}
@@ -650,11 +648,14 @@ export default function Navbar() {
 
               {showDropdown && (
                 <>
+                  {/* Backdrop */}
                   <div
                     style={{ position: 'fixed', inset: 0, zIndex: 40 }}
                     onClick={() => setShowDropdown(false)}
                   />
+
                   <div className="bell-dropdown">
+                    {/* Dropdown Header */}
                     <div className="dropdown-header">
                       <div className="dropdown-title">
                         <Bell size={13} strokeWidth={2.2} />
@@ -667,6 +668,7 @@ export default function Navbar() {
                       )}
                     </div>
 
+                    {/* Empty state */}
                     {alerts.length === 0 ? (
                       <div className="dropdown-empty">
                         <div className="dropdown-empty-icon">
@@ -677,7 +679,15 @@ export default function Navbar() {
                     ) : (
                       <div className="alert-list">
                         {alerts.slice(0, 6).map((alert) => (
-                          <div key={alert.leadId} className={`alert-item ${alert.overdue ? 'overdue' : 'upcoming'}`}>
+                          <div
+                            key={alert.leadId}
+                            className={`alert-item ${alert.overdue ? 'overdue' : 'upcoming'}`}
+                            onClick={() => {
+                              // ✅ FIX: Specific lead pe navigate karo
+                              setShowDropdown(false);
+                              navigate(`/leads/${alert.leadId}`);
+                            }}
+                          >
                             <div className={`alert-dot ${alert.overdue ? 'overdue' : 'upcoming'}`} />
                             <div className="alert-info">
                               <div className="alert-name">{alert.name}</div>
@@ -696,9 +706,13 @@ export default function Navbar() {
                       </div>
                     )}
 
+                    {/* Footer — See all */}
                     <div
                       className="dropdown-footer"
-                      onClick={() => { setShowDropdown(false); navigate('/agent/my-leads'); }}
+                      onClick={() => {
+                        setShowDropdown(false);
+                        navigate('/agent/my-leads');
+                      }}
                     >
                       See all leads <ChevronRight size={13} />
                     </div>
@@ -750,16 +764,14 @@ export default function Navbar() {
             <span style={{ position: 'relative', display: 'inline-flex' }}>
               <Bell size={18} strokeWidth={2.2} />
               {alertStats.total > 0 && (
-                <span
-                  style={{
-                    position: 'absolute', top: -4, right: -4,
-                    width: 14, height: 14, borderRadius: '50%',
-                    background: alertStats.overdue > 0 ? '#dc2626' : '#ea580c',
-                    fontSize: '0.48rem', fontWeight: 800, color: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    border: '2px solid #fff',
-                  }}
-                >
+                <span style={{
+                  position: 'absolute', top: -4, right: -4,
+                  width: 14, height: 14, borderRadius: '50%',
+                  background: alertStats.overdue > 0 ? '#dc2626' : '#ea580c',
+                  fontSize: '0.48rem', fontWeight: 800, color: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: '2px solid #fff',
+                }}>
                   {alertStats.total > 9 ? '9+' : alertStats.total}
                 </span>
               )}
