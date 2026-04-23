@@ -536,6 +536,42 @@ export default function Navbar() {
         .sidebar.expanded  .logout-btn-label { opacity: 1; max-width: 200px; }
         .sidebar.collapsed .logout-btn-label { opacity: 0; max-width: 0; width: 0; }
 
+ /* MOBILE TOP BAR */
+      .mobile-topbar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: #fff;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        z-index: 1000;
+        padding: 0 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .mobile-user {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .mobile-user-name {
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .mobile-logout {
+        border: none;
+        background: #fee2e2;
+        padding: 6px;
+        border-radius: 6px;
+        color: red;
+      }
+
+
         /* ── Mobile bottom bar (≤ 640px) ── */
         .mobile-bar {
           display: none;
@@ -573,6 +609,9 @@ export default function Navbar() {
         @media (max-width: 640px) {
           .sidebar     { display: none; }
           .mobile-bar  { display: flex; }
+          .mobile-topbar { display: flex; }
+        body { padding-top: 56px; padding-bottom: 60px; }
+
         }
       `}</style>
 
@@ -728,6 +767,27 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
+
+
+ {/* MOBILE TOP */}
+      <div className="mobile-topbar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* <Phone size={16} /> */}
+          <b>CRM</b>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="mobile-user">
+            <div className="user-avatar">{initials}</div>
+            {/* <span className="mobile-user-name">{user?.name}</span> */}
+          </div>
+
+          <button className="mobile-logout" onClick={handleLogout}>
+            <LogOut size={16} />
+          </button>
+        </div>
+      </div>
+
 
       {/* ── Mobile bottom bar ── */}
       <nav className="mobile-bar">
