@@ -33,7 +33,7 @@ export default function CallHistory() {
   return (
     <div className="p-6 bg-gradient-to-br from-purple-50 via-gray-50 to-white min-h-screen">
       {/* Header */}
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
         {/* <Phone className="w-6 h-6 text-purple-600" /> */}
         Call History
       </h1>
