@@ -96,12 +96,28 @@ export default function LeadCard({ lead, onCallClick, isHighlighted }) {
         </p>
       )}
 
-      <button
-        onClick={() => onCallClick(lead)}
-        className="w-full bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 rounded-lg transition flex items-center justify-center gap-2"
-      >
-        📞 Call Now
-      </button>
-    </div>
+    <div style={{ display: 'flex', gap: 8 }}>
+  {/* Phone dialer button */}
+  <a
+    href={`tel:${lead.phone}`}
+    style={{ flex: 1, textDecoration: 'none' }}
+  >
+    <button
+      className="w-full bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 rounded-lg transition flex items-center justify-center gap-2"
+    >
+      📞 Call
+    </button>
+  </a>
+
+  {/* Log call button — CallModal khulega */}
+  <button
+    onClick={() => onCallClick(lead)}
+    className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold py-2 px-3 rounded-lg transition"
+    title="Log call"
+  >
+    📝
+  </button>
+</div>
+
   );
 }

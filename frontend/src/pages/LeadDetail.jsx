@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import LeadInfo from '../components/leaddetail/LeadInfo';
 import CallTimeline from '../components/leaddetail/CallTimeline';
 import CallModal from '../components/CallModal';
+import { LuLogs } from "react-icons/lu";
 
 /* ── Google Fonts injection (idempotent) ──────────────────────────────────── */
 if (!document.getElementById('crm-fonts')) {
@@ -226,18 +227,36 @@ export default function LeadDetail() {
           </button>
 
           {(user.role === 'agent' || user.role === 'admin') && (
-            <button
-              onClick={() => setShowCallModal(true)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                fontSize: 13, fontWeight: 600, color: '#fff',
-                background: '#16a34a', border: 'none',
-                padding: '9px 18px', borderRadius: 9, cursor: 'pointer',
-                fontFamily: TITLE_FONT, letterSpacing: '0.2px', transition: 'background .15s',
-              }}
-            >
-              <PhoneIcon /> Call Now
-            </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+  {/* Direct phone call */}
+  <a href={`tel:${lead.phone}`} style={{ textDecoration: 'none' }}>
+    <button
+      style={{
+        display: 'flex', alignItems: 'center', gap: 7,
+        fontSize: 13, fontWeight: 600, color: '#fff',
+        background: '#16a34a', border: 'none',
+        padding: '9px 18px', borderRadius: 9, cursor: 'pointer',
+        fontFamily: TITLE_FONT, letterSpacing: '0.2px',
+      }}
+    >
+      <PhoneIcon /> Call
+    </button>
+  </a>
+
+  {/* Log call result */}
+  <button
+    onClick={() => setShowCallModal(true)}
+    style={{
+      display: 'flex', alignItems: 'center', gap: 7,
+      fontSize: 13, fontWeight: 600, color: '#185FA5',
+      background: '#EBF3FC', border: '1px solid #B5D4F4',
+      padding: '9px 18px', borderRadius: 9, cursor: 'pointer',
+      fontFamily: TITLE_FONT, letterSpacing: '0.2px',
+    }}
+  >
+    <LuLogs /> Log Call
+  </button>
+</div>
           )}
         </div>
 

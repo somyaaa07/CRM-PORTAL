@@ -57,15 +57,28 @@ export const AlertProvider = ({ children, onAlert }) => {
     return () => clearInterval(interval);
   }, [fetchAlerts, user]);
 
-  const dismissAlert = async (leadId) => {
-    try {
-      await API.put(`/alerts/dismiss/${leadId}`);
-      setAlerts((prev) => prev.filter((a) => a.leadId !== leadId));
-      setAlertStats((prev) => ({ ...prev, total: prev.total - 1 }));
-    } catch (err) {
-      console.error('Dismiss error:', err);
-    }
-  };
+const dismissAlert = async (leadId) => {
+  try {
+    await API.put(`/alerts/dismiss/${leadId}`);
+
+    // ✅ Alert ka overdue status track karo dismiss se pehle
+    const dismissedAlert = alerts.find((a) => a.leadId === leadId);
+
+    setAlerts((prev) => prev.filter((a) => a.leadId !== leadId));
+
+    setAlertStats((prev) => ({
+      total:    Math.max(0, prev.total - 1),
+      overdue:  Math.max(0, prev.overdue  - (dismissedAlert?.overdue  ? 1 : 0)),
+      upcoming: Math.max(0, prev.upcoming - (!dismissedAlert?.overdue ? 1 : 0)),
+    }));
+
+    // ✅ 1 sec baad fresh fetch karo confirm ke liye
+    setTimeout(() => fetchAlerts(false), 1000);
+
+  } catch (err) {
+    console.error('Dismiss error:', err);
+  }
+};
 
   return (
     <AlertContext.Provider value={{

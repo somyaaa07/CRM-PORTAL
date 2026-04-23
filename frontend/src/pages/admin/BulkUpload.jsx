@@ -171,7 +171,7 @@ export default function BulkUpload() {
     <div style={{ background: T.bg, minHeight: '100vh', padding: '28px 20px', fontFamily: T.body }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
 
-      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+      <div style={{  margin: '0 auto' }}>
 
         {/* ── Page header ── */}
         <div style={{ marginBottom: 24 }}>

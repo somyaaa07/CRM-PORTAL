@@ -1,18 +1,11 @@
-import { useState, useEffect } from "react";
-import API from "../../api/axios";
-import CallModal from "../../components/CallModal";
-import Pagination from "../../components/Pagination";
-import { useNavigate } from "react-router-dom";
-import { FiChevronRight } from "react-icons/fi";
-
-const STATUS_FILTERS = [
-  "All",
-  "New",
-  "Contacted",
-  "Follow-Up",
-  "Interested",
-  "Not Interested",
-];
+import { useState, useEffect } from 'react';
+import API from '../../api/axios';
+import CallModal from '../../components/CallModal';
+import Pagination from '../../components/Pagination';
+import { useNavigate } from 'react-router-dom';
+import{FiChevronRight}  from 'react-icons/fi'
+import { LuLogs } from "react-icons/lu";
+const STATUS_FILTERS = ['All', 'New', 'Contacted', 'Follow-Up', 'Interested', 'Not Interested'];
 
 const STATUS_META = {
   New: { bg: "#E6F1FB", border: "#B5D4F4", dot: "#378ADD", text: "#0C447C" },
@@ -208,57 +201,56 @@ function LeadCard({ lead, onCallClick, onNavigate, isHighlighted }) {
         </span>
       </div>
 
-      {/* Footer */}
-      <div
+     {/* Footer */}
+<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+  <span style={{ fontSize: 11.5, color: '#B4B2A9', fontFamily: "'DM Sans', sans-serif" }}>
+    Last: {lead.lastContact}
+  </span>
+
+  <div style={{ display: 'flex', gap: 6 }}>
+    {/* ✅ Phone dialer — directly phone khulega */}
+    <a
+      href={`tel:${lead.phone}`}
+      style={{ textDecoration: 'none' }}
+      onClick={e => e.stopPropagation()}
+    >
+      <button
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          background: hov ? '#1D9E75' : '#E1F5EE',
+          color: hov ? '#ffffff' : '#085041',
+          border: `1px solid ${hov ? '#1D9E75' : '#9FE1CB'}`,
+          borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 600,
+          fontFamily: "'Sora', sans-serif", cursor: 'pointer',
+          transition: 'all 0.15s ease',
+          display: 'flex', alignItems: 'center', gap: 6,
         }}
       >
-        <span
-          style={{
-            fontSize: 11.5,
-            color: "#B4B2A9",
-            fontFamily: "'DM Sans', sans-serif",
-          }}
-        >
-          Last: {lead.lastContact}
-        </span>
-        <button
-          onClick={() => onCallClick(lead)}
-          style={{
-            background: hov ? "#1D9E75" : "#E1F5EE",
-            color: hov ? "#ffffff" : "#085041",
-            border: `1px solid ${hov ? "#1D9E75" : "#9FE1CB"}`,
-            borderRadius: 8,
-            padding: "6px 14px",
-            fontSize: 12,
-            fontWeight: 600,
-            fontFamily: "'Sora', sans-serif",
-            cursor: "pointer",
-            transition: "all 0.15s ease",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.62 4.55 2 2 0 0 1 3.59 2.37h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z" />
-          </svg>
-          Call
-        </button>
-      </div>
-    </div>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.62 4.55 2 2 0 0 1 3.59 2.37h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/>
+        </svg>
+        Call
+      </button>
+    </a>
+
+    {/* ✅ Log call — CallModal khulega */}
+    <button
+      onClick={(e) => { e.stopPropagation(); onCallClick(lead); }}
+      style={{
+        background: '#F7F5F0',
+        color: '#444441',
+        border: '1px solid #E8E6DF',
+        borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 600,
+        fontFamily: "'Sora', sans-serif", cursor: 'pointer',
+        transition: 'all 0.15s ease',
+        display: 'flex', alignItems: 'center', gap: 5,
+      }}
+      title="Log call result"
+    >
+        <LuLogs /> Log
+    </button>
+  </div>
+</div>
+ </div>
   );
 }
 
