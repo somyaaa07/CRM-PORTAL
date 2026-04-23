@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import { CheckCircle2, XCircle, AlertTriangle, Info, Bell } from 'lucide-react';
 
 const ToastContext = createContext();
 
@@ -11,12 +12,13 @@ const TOAST_STYLES = {
   followup: 'bg-purple-500 text-white',
 };
 
+// ─── Toast Icons (Lucide) ──────────────────────────────────
 const TOAST_ICONS = {
-  success:  '✅',
-  error:    '❌',
-  warning:  '⚠️',
-  info:     'ℹ️',
-  followup: '🔔',
+  success:  <CheckCircle2  size={17} strokeWidth={2} />,
+  error:    <XCircle       size={17} strokeWidth={2} />,
+  warning:  <AlertTriangle size={17} strokeWidth={2} />,
+  info:     <Info          size={17} strokeWidth={2} />,
+  followup: <Bell          size={17} strokeWidth={2} />,
 };
 
 // ─── Toast Container (UI) ──────────────────────────────────
@@ -34,9 +36,9 @@ const ToastContainer = ({ toasts, removeToast }) => {
             animate-slide-in
           `}
         >
-          <span className="text-lg mt-0.5 shrink-0">
-            {TOAST_ICONS[toast.type]}
-          </span>
+          <div className="mt-0.5 shrink-0 opacity-90">
+            {TOAST_ICONS[toast.type] ?? TOAST_ICONS.info}
+          </div>
           <p className="text-sm flex-1 leading-snug">{toast.message}</p>
           <button
             onClick={() => removeToast(toast.id)}

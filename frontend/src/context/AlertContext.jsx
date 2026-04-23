@@ -24,17 +24,16 @@ export const AlertProvider = ({ children, onAlert }) => {
         upcoming: res.data.upcoming,
       });
 
-      // Toast fire karo agar alerts hain
       if (showToast && res.data.total > 0) {
         if (res.data.overdue > 0) {
           onAlert?.({
-            message: `🚨 ${res.data.overdue} overdue follow-up ! Call Now`,
+            message: `${res.data.overdue} overdue follow-up — call now`,
             type: 'error',
             duration: 7000,
           });
         } else {
           onAlert?.({
-            message: `🔔 ${res.data.upcoming} follow-up Pending for Today.`,
+            message: `${res.data.upcoming} follow-up pending for today`,
             type: 'followup',
             duration: 6000,
           });
@@ -48,10 +47,10 @@ export const AlertProvider = ({ children, onAlert }) => {
   }, [user, onAlert]);
 
   useEffect(() => {
-    fetchAlerts(true); // Pehli baar toast dikhao
+    fetchAlerts(true);
   }, [fetchAlerts]);
 
-  // Har 5 min mein refresh + toast
+  // Refresh every 5 minutes
   useEffect(() => {
     if (!user || user.role !== 'agent') return;
     const interval = setInterval(() => fetchAlerts(true), 5 * 60 * 1000);
