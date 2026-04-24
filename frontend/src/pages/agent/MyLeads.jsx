@@ -78,13 +78,28 @@ function LeadCard({ lead, onCallClick, onNavigate, isHighlighted }) {
 
 /* VERY SMALL (320px - 374px)  */
 @media (max-width: 374px) {
+        .main{
+        padding:10px !important;
+        }
   .lead-status{
-  font-size: 6px !important;
-  margin-right:-8px !important 
+  font-size: 7px !important;
+  margin-left:-25px !important;
+  margin-bottom:30px !important ;
+  
+  }
+
+  .badge-section{
+        gap:7px !important;
+        
+  }
+
+  .name-section{
+        font-size:12px !important
   }
 }`}</style>
 
       <div
+        className="main"
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
         style={{
@@ -104,7 +119,10 @@ function LeadCard({ lead, onCallClick, onNavigate, isHighlighted }) {
         }}
       >
         {/* Avatar + name + badge */}
-        <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+        <div
+          className="badge-section"
+          style={{ display: "flex", alignItems: "center", gap: 11 }}
+        >
           <div
             style={{
               width: 42,
@@ -139,6 +157,7 @@ function LeadCard({ lead, onCallClick, onNavigate, isHighlighted }) {
             }}
           >
             <span
+              className="name-section"
               style={{
                 whiteSpace: "nowrap",
                 overflow: "hidden",
