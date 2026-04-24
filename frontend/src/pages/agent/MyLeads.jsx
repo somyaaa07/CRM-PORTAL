@@ -1,11 +1,18 @@
-import { useState, useEffect } from 'react';
-import API from '../../api/axios';
-import CallModal from '../../components/CallModal';
-import Pagination from '../../components/Pagination';
-import { useNavigate } from 'react-router-dom';
-import{FiChevronRight}  from 'react-icons/fi'
+import { useState, useEffect } from "react";
+import API from "../../api/axios";
+import CallModal from "../../components/CallModal";
+import Pagination from "../../components/Pagination";
+import { useNavigate } from "react-router-dom";
+import { FiChevronRight } from "react-icons/fi";
 import { LuLogs } from "react-icons/lu";
-const STATUS_FILTERS = ['All', 'New', 'Contacted', 'Follow-Up', 'Interested', 'Not Interested'];
+const STATUS_FILTERS = [
+  "All",
+  "New",
+  "Contacted",
+  "Follow-Up",
+  "Interested",
+  "Not Interested",
+];
 
 const STATUS_META = {
   New: { bg: "#E6F1FB", border: "#B5D4F4", dot: "#378ADD", text: "#0C447C" },
@@ -65,192 +72,245 @@ function LeadCard({ lead, onCallClick, onNavigate, isHighlighted }) {
   const [hov, setHov] = useState(false);
 
   return (
-    <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        background: "#ffffff",
-        border: `1px solid ${isHighlighted ? meta.border : "#E8E6DF"}`,
-        borderLeft: `3px solid ${meta.dot}`,
-        borderRadius: 14,
-        padding: "18px 18px 14px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
-        transition: "box-shadow 0.18s ease, border-color 0.18s ease",
-        boxSizing: "border-box",
-        boxShadow: hov
-          ? "0 4px 18px rgba(0,0,0,0.07)"
-          : "0 1px 3px rgba(0,0,0,0.04)",
-      }}
-    >
-      {/* Avatar + name + badge */}
-      <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-        <div
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: "50%",
-            background: ac + "18",
-            border: `1.5px solid ${ac}44`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "'Sora', sans-serif",
-            fontWeight: 700,
-            fontSize: 13.5,
-            color: ac,
-            flexShrink: 0,
-          }}
-        >
-          {initials(lead.name)}
-        </div>
-        <div
-          onClick={() => onNavigate(lead.id)}
-          style={{
-            margin: 0,
-            fontFamily: "'Sora', sans-serif",
-            fontWeight: 600,
-            fontSize: 14.5,
-            color: "#2C2C2A",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <span
+    <>
+      <style>{`
+      
+
+/* VERY SMALL (320px - 374px)  */
+@media (max-width: 374px) {
+  .lead-status{
+  font-size: 6px !important;
+  margin-right:-8px !important 
+  }
+}`}</style>
+
+      <div
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          background: "#ffffff",
+          border: `1px solid ${isHighlighted ? meta.border : "#E8E6DF"}`,
+          borderLeft: `3px solid ${meta.dot}`,
+          borderRadius: 14,
+          padding: "18px 18px 14px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          transition: "box-shadow 0.18s ease, border-color 0.18s ease",
+          boxSizing: "border-box",
+          boxShadow: hov
+            ? "0 4px 18px rgba(0,0,0,0.07)"
+            : "0 1px 3px rgba(0,0,0,0.04)",
+        }}
+      >
+        {/* Avatar + name + badge */}
+        <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+          <div
             style={{
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              maxWidth: 140,
+              width: 42,
+              height: 42,
+              borderRadius: "50%",
+              background: ac + "18",
+              border: `1.5px solid ${ac}44`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 700,
+              fontSize: 13.5,
+              color: ac,
+              flexShrink: 0,
             }}
           >
-            {lead.name}
-          </span>
-          <FiChevronRight
-            style={{ color: "#94A3B8", flexShrink: 0, fontSize: 14 }}
-          />
-        </div>
-        <p style={{ margin: 0, fontSize: 12, color: "#888780", marginTop: 2 }}>
-          {lead.city}
-        </p>
+            {initials(lead.name)}
+          </div>
+          <div
+            onClick={() => onNavigate(lead.id)}
+            style={{
+              margin: 0,
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 600,
+              fontSize: 14.5,
+              color: "#2C2C2A",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <span
+              style={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: 140,
+              }}
+            >
+              {lead.name}
+            </span>
+            <FiChevronRight
+              style={{ color: "#94A3B8", flexShrink: 0, fontSize: 14 }}
+            />
+          </div>
+          <p
+            style={{ margin: 0, fontSize: 12, color: "#888780", marginTop: 2 }}
+          >
+            {lead.city}
+          </p>
 
-        <span
+          <span
+            className="lead-status"
+            style={{
+              background: meta.bg,
+              color: meta.text,
+              border: `1px solid ${meta.border}`,
+              borderRadius: 20,
+              padding: "3px 10px",
+              fontSize: 11,
+              fontWeight: 600,
+              fontFamily: "'DM Sans', sans-serif",
+              whiteSpace: "nowrap",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: meta.dot,
+                display: "inline-block",
+              }}
+            />
+            {lead.status}
+          </span>
+        </div>
+
+        {/* Phone */}
+        <div
           style={{
-            background: meta.bg,
-            color: meta.text,
-            border: `1px solid ${meta.border}`,
-            borderRadius: 20,
-            padding: "3px 10px",
-            fontSize: 11,
-            fontWeight: 600,
-            fontFamily: "'DM Sans', sans-serif",
-            whiteSpace: "nowrap",
             display: "flex",
             alignItems: "center",
-            gap: 5,
+            gap: 8,
+            background: "#F7F5F0",
+            borderRadius: 8,
+            padding: "8px 11px",
+            border: "1px solid #E8E6DF",
+          }}
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#888780"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.62 4.55 2 2 0 0 1 3.59 2.37h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z" />
+          </svg>
+          <span
+            style={{
+              fontSize: 13,
+              color: "#444441",
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            {lead.phone}
+          </span>
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 8,
           }}
         >
           <span
             style={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              background: meta.dot,
-              display: "inline-block",
+              fontSize: 11.5,
+              color: "#B4B2A9",
+              fontFamily: "'DM Sans', sans-serif",
             }}
-          />
-          {lead.status}
-        </span>
+          >
+            Last: {lead.lastContact}
+          </span>
+
+          <div style={{ display: "flex", gap: 6 }}>
+            {/* ✅ Phone dialer — directly phone khulega */}
+            <a
+              href={`tel:${lead.phone}`}
+              style={{ textDecoration: "none" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                style={{
+                  background: hov ? "#1D9E75" : "#E1F5EE",
+                  color: hov ? "#ffffff" : "#085041",
+                  border: `1px solid ${hov ? "#1D9E75" : "#9FE1CB"}`,
+                  borderRadius: 8,
+                  padding: "6px 14px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  fontFamily: "'Sora', sans-serif",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.62 4.55 2 2 0 0 1 3.59 2.37h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z" />
+                </svg>
+                Call
+              </button>
+            </a>
+
+            {/* ✅ Log call — CallModal khulega */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCallClick(lead);
+              }}
+              style={{
+                background: "#F7F5F0",
+                color: "#444441",
+                border: "1px solid #E8E6DF",
+                borderRadius: 8,
+                padding: "6px 10px",
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: "'Sora', sans-serif",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+              title="Log call result"
+            >
+              <LuLogs /> Log
+            </button>
+          </div>
+        </div>
       </div>
-
-      {/* Phone */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          background: "#F7F5F0",
-          borderRadius: 8,
-          padding: "8px 11px",
-          border: "1px solid #E8E6DF",
-        }}
-      >
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#888780"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.62 4.55 2 2 0 0 1 3.59 2.37h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z" />
-        </svg>
-        <span
-          style={{
-            fontSize: 13,
-            color: "#444441",
-            fontFamily: "'DM Sans', sans-serif",
-          }}
-        >
-          {lead.phone}
-        </span>
-      </div>
-
-     {/* Footer */}
-<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-  <span style={{ fontSize: 11.5, color: '#B4B2A9', fontFamily: "'DM Sans', sans-serif" }}>
-    Last: {lead.lastContact}
-  </span>
-
-  <div style={{ display: 'flex', gap: 6 }}>
-    {/* ✅ Phone dialer — directly phone khulega */}
-    <a
-      href={`tel:${lead.phone}`}
-      style={{ textDecoration: 'none' }}
-      onClick={e => e.stopPropagation()}
-    >
-      <button
-        style={{
-          background: hov ? '#1D9E75' : '#E1F5EE',
-          color: hov ? '#ffffff' : '#085041',
-          border: `1px solid ${hov ? '#1D9E75' : '#9FE1CB'}`,
-          borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 600,
-          fontFamily: "'Sora', sans-serif", cursor: 'pointer',
-          transition: 'all 0.15s ease',
-          display: 'flex', alignItems: 'center', gap: 6,
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.62 4.55 2 2 0 0 1 3.59 2.37h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/>
-        </svg>
-        Call
-      </button>
-    </a>
-
-    {/* ✅ Log call — CallModal khulega */}
-    <button
-      onClick={(e) => { e.stopPropagation(); onCallClick(lead); }}
-      style={{
-        background: '#F7F5F0',
-        color: '#444441',
-        border: '1px solid #E8E6DF',
-        borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 600,
-        fontFamily: "'Sora', sans-serif", cursor: 'pointer',
-        transition: 'all 0.15s ease',
-        display: 'flex', alignItems: 'center', gap: 5,
-      }}
-      title="Log call result"
-    >
-        <LuLogs /> Log
-    </button>
-  </div>
-</div>
- </div>
+    </>
   );
 }
 
@@ -389,6 +449,10 @@ export default function MyLeads() {
   .stat-container > div {
     width: 100% !important;
   }
+
+  .lead-grid{
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+  }
 }
 
 /*  SMALL (375px - 425px) */
@@ -398,18 +462,19 @@ export default function MyLeads() {
   }
 
   .stat-container > div {
-    width: 48% !important;
+    width: 100% !important;
   }
+  
 }
 
 /*  TABLET (426px - 768px)  */
-@media (min-width: 426px) and (max-width: 768px) {
+@media (min-width: 425px) and (max-width: 768px) {
   .stat-container {
     justify-content: flex-start !important;
   }
 
   .stat-container > div {
-    width: 31% !important;
+    width: 100% !important;
   }
 }
 
