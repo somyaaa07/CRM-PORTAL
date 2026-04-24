@@ -20,6 +20,7 @@ import BulkUpload     from './pages/admin/BulkUpload';
 
 // Shared Pages
 import LeadDetail from './pages/LeadDetail';
+import ScrollToTop from './components/ScrollToTp';
 
 // ── Protected Route ────────────────────────────────────────
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -134,6 +135,7 @@ export default function App() {
       <ToastProvider>
         <AlertWrapper>
           <BrowserRouter>
+          <ScrollToTop/>
             <AppRoutes />
           </BrowserRouter>
         </AlertWrapper>
