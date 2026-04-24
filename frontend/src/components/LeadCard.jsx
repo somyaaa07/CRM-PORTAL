@@ -53,7 +53,7 @@ export default function LeadCard({ lead, onCallClick, isHighlighted }) {
       {/* Follow-up due banner */}
       {isFollowUpDue && !isHighlighted && (
         <div className="bg-orange-50 text-orange-700 text-xs px-3 py-1.5 rounded-lg mb-3 flex items-center gap-1">
-          ⏰ Follow-up due hai!
+          ⏰ Follow-up is due
         </div>
       )}
 
@@ -84,9 +84,9 @@ export default function LeadCard({ lead, onCallClick, isHighlighted }) {
         <span className="text-xs text-gray-400">{lead.source}</span>
       </div>
 
-      {lead.followUpDate && (
+       {lead.followUpDate && (
         <p className="text-xs text-gray-500 mb-3">
-          📅 {new Date(lead.followUpDate).toLocaleString('en-IN')}
+          📅 {formatFollowUpDate(lead.followUpDate)}
         </p>
       )}
 

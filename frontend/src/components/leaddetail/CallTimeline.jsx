@@ -1,5 +1,5 @@
 /* ─── CallTimeline.jsx ──────────────────────────────────────────────────────── */
-
+import { formatFollowUpDate } from "../../utils/dateUtils";
 const DISPOSITION_STYLES = {
   'Answered':           { bg: '#EAF3DE', color: '#3B6D11', border: '#C0DD97', dotBg: '#EAF3DE', dotBorder: '#97C459' },
   'No Answer':          { bg: '#FCEBEB', color: '#A32D2D', border: '#F7C1C1', dotBg: '#FCEBEB', dotBorder: '#F09595' },
@@ -155,12 +155,9 @@ export default function CallTimeline({ callLogs }) {
                   }}>
                     {log.disposition}
                   </span>
-                  <span style={{ fontSize: 11, color: '#b0acac', fontFamily: "'Courier New', monospace" }}>
-                    {new Date(log.calledAt).toLocaleString('en-IN', {
-                      day: '2-digit', month: 'short',
-                      hour: '2-digit', minute: '2-digit',
-                    })}
-                  </span>
+                 <span className="text-xs text-gray-400">
+                  🕐 {formatFollowUpDate(log.calledAt)}
+                </span>
                 </div>
 
                 {/* Agent */}

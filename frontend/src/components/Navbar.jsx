@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAlerts } from '../context/AlertContext';
+import { formatFollowUpDate } from '../utils/dateUtils'; // ✅ Added
 import {
   LayoutDashboard, ClipboardList, BarChart2, Phone,
   Users, Upload, Bell, LogOut, AlertTriangle,
@@ -700,7 +701,6 @@ export default function Navbar() {
 
               {showDropdown && (
                 <>
-                  {/* Backdrop */}
                   <div
                     style={{ position: 'fixed', inset: 0, zIndex: 40 }}
                     onClick={() => setShowDropdown(false)}
@@ -741,10 +741,7 @@ export default function Navbar() {
                             <div className="alert-info">
                               <div className="alert-name">{alert.name}</div>
                               <div className="alert-meta">
-                                {alert.phone} · {new Date(alert.followUpDate).toLocaleString('en-IN', {
-                                  day: '2-digit', month: 'short',
-                                  hour: '2-digit', minute: '2-digit',
-                                })}
+                                {alert.phone} · {formatFollowUpDate(alert.followUpDate)} {/* ✅ UTC fix */}
                               </div>
                             </div>
                             <span className={`alert-tag ${alert.overdue ? 'overdue' : 'upcoming'}`}>
@@ -821,10 +818,8 @@ export default function Navbar() {
 
         {user?.role === 'agent' && (
           <>
-            {/* Mobile alert dropdown — renders above the bottom bar */}
             {showDropdown && (
               <>
-                {/* Backdrop */}
                 <div
                   style={{ position: 'fixed', inset: 0, zIndex: 40 }}
                   onClick={() => setShowDropdown(false)}
@@ -865,10 +860,7 @@ export default function Navbar() {
                           <div className="alert-info">
                             <div className="alert-name">{alert.name}</div>
                             <div className="alert-meta">
-                              {alert.phone} · {new Date(alert.followUpDate).toLocaleString('en-IN', {
-                                day: '2-digit', month: 'short',
-                                hour: '2-digit', minute: '2-digit',
-                              })}
+                              {alert.phone} · {formatFollowUpDate(alert.followUpDate)} {/* ✅ UTC fix */}
                             </div>
                           </div>
                           <span className={`alert-tag ${alert.overdue ? 'overdue' : 'upcoming'}`}>
@@ -892,7 +884,6 @@ export default function Navbar() {
               </>
             )}
 
-            {/* Alerts bell button */}
             <button
               className={`mobile-link${alertStats.total > 0 ? ' active' : ''}`}
               style={{ border: 'none', background: 'transparent', cursor: 'pointer', position: 'relative' }}

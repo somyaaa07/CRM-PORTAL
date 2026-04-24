@@ -2,6 +2,7 @@ import { useState } from 'react';
 import API from '../../api/axios';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
+import { formatFollowUpDate, toLocalDateTimeInput, isOverdue } from '../../utils/dateUtils'; // already correct ✅
 
 /* ─── Google Fonts ─────────────────────────────────────────────────────────── */
 const FONT_LINK = document.getElementById('crm-fonts');
@@ -166,9 +167,9 @@ export default function LeadInfo({ lead, agents, onUpdate }) {
   };
 
   const initials = lead.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const st = STATUS_STYLES[lead.status]   || STATUS_STYLES['New'];
+  const st = STATUS_STYLES[lead.status]     || STATUS_STYLES['New'];
   const pt = PRIORITY_STYLES[lead.priority] || PRIORITY_STYLES['Medium'];
-  const isOverdue = lead.followUpDate && new Date(lead.followUpDate) < new Date();
+  // ✅ Removed local `const isOverdue = ...` — using imported isOverdue() function instead
 
   return (
     <div style={s.card}>
@@ -241,15 +242,12 @@ export default function LeadInfo({ lead, agents, onUpdate }) {
           display: 'flex', alignItems: 'center', gap: 6,
           fontSize: 12, padding: '8px 12px', borderRadius: 9, marginBottom: 14,
           fontFamily: "'Jost', sans-serif",
-          background: isOverdue ? '#FCEBEB' : '#EEEDFE',
-          color:      isOverdue ? '#A32D2D' : '#534AB7',
+          background: isOverdue(lead.followUpDate) ? '#FCEBEB' : '#EEEDFE', // ✅ function call
+          color:      isOverdue(lead.followUpDate) ? '#A32D2D' : '#534AB7', // ✅ function call
         }}>
           <CalendarIcon />
-          Follow-up: {new Date(lead.followUpDate).toLocaleString('en-IN', {
-            day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit',
-          })}
-          {isOverdue && <span style={{ marginLeft: 4, fontWeight: 600 }}>· Overdue</span>}
+          Follow-up: {formatFollowUpDate(lead.followUpDate)} {/* ✅ UTC fix */}
+          {isOverdue(lead.followUpDate) && <span style={{ marginLeft: 4, fontWeight: 600 }}>· Overdue</span>}
         </div>
       )}
 

@@ -23,7 +23,6 @@ const DISPOSITIONS = [
 export default function CallModal({ lead, onClose, onSaved }) {
   const { addToast } = useToast();
 
-  //  useState FIRST — always before functions
   const [form, setForm] = useState({
     disposition: "",
     notes: "",
@@ -34,7 +33,6 @@ export default function CallModal({ lead, onClose, onSaved }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  //  Fixed: backticks + PUT method
   const handleToggleAlert = async () => {
     const newStatus = !form.alertEnabled;
     try {
@@ -64,16 +62,24 @@ export default function CallModal({ lead, onClose, onSaved }) {
     setLoading(true);
     setError("");
     try {
+      // ✅ Convert datetime-local to UTC ISO string
+      const followUpDateUTC = form.followUpDate
+        ? new Date(form.followUpDate).toISOString()
+        : null;
+
       await API.post("/call-logs", {
         leadId: lead.id,
-        ...form,
+        disposition: form.disposition,
+        notes: form.notes,
+        followUpDate: followUpDateUTC,
+        alertEnabled: form.alertEnabled,
         callDuration: Number(form.callDuration) || 0,
       });
 
       if (form.followUpDate) {
-        await API.put(`leads/${lead.id}/status`, {
+        await API.put(`/leads/${lead.id}/status`, {
           status: "Follow-Up",
-          followUpDate: form.followUpDate,
+          followUpDate: followUpDateUTC, // ✅ UTC here too
           alertEnabled: form.alertEnabled,
         });
       }

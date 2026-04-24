@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAlerts } from '../context/AlertContext';
 import { useNavigate } from 'react-router-dom';
+import { formatFollowUpDate } from '../utils/dateUtils';
 
 /* ── Icons ──────────────────────────────────────────────────────────────────── */
 const BellIcon = () => (
@@ -201,30 +202,27 @@ export default function AlertBanner() {
                       <span style={{ width: 3, height: 3, borderRadius: '50%', background: '#d4cfcf' }}/>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#9e9a9a' }}>
                         <CalendarIcon />
-                        {new Date(alert.followUpDate).toLocaleString('en-IN', {
-                          day: '2-digit', month: 'short',
-                          hour: '2-digit', minute: '2-digit',
-                        })}
+                        {formatFollowUpDate(alert.followUpDate)} {/* ✅ UTC fix */}
                       </span>
                     </div>
                   </div>
 
                   {/* Actions */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
-                  <button
-  onClick={() => navigate(`/leads/${alert.leadId}`)}
-  style={{
-    display: 'flex', alignItems: 'center', gap: 5,
-    fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 8,
-    background: '#16a34a', color: '#fff', border: 'none', cursor: 'pointer',
-    fontFamily: "'Manrope', sans-serif", letterSpacing: '0.2px',
-    transition: 'background .15s',
-  }}
-  onMouseEnter={e => e.currentTarget.style.background = '#15803d'}
-  onMouseLeave={e => e.currentTarget.style.background = '#16a34a'}
->
-  <PhoneIcon /> Call
-</button> 
+                    <button
+                      onClick={() => navigate(`/leads/${alert.leadId}`)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 8,
+                        background: '#16a34a', color: '#fff', border: 'none', cursor: 'pointer',
+                        fontFamily: "'Manrope', sans-serif", letterSpacing: '0.2px',
+                        transition: 'background .15s',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#15803d'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#16a34a'}
+                    >
+                      <PhoneIcon /> Call
+                    </button>
                     <button
                       onClick={() => handleDismiss(alert.leadId)}
                       disabled={isDismissing}

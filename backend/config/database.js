@@ -8,9 +8,16 @@ const sequelize = new Sequelize(
   process.env.DB_USER,
   process.env.DB_PASSWORD,
   {
-    host: process.env.DB_HOST,
+    host:    process.env.DB_HOST,
     dialect: 'mysql',
     logging: false,
+
+    // ✅ IST timezone
+    timezone: '+05:30',
+
+    dialectOptions: {
+      timezone: '+05:30',
+    },
   }
 );
 
