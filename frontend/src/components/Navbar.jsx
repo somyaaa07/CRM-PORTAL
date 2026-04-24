@@ -392,15 +392,14 @@ export default function Navbar() {
           display: flex;
           align-items: flex-start;
           gap: 10px;
-          cursor: pointer;           /* ← NEW */
-          transition: background 0.15s; /* ← NEW */
+          cursor: pointer;
+          transition: background 0.15s;
         }
 
         .alert-item:last-child { border-bottom: none; }
         .alert-item.overdue  { background: rgba(220,38,38,0.03); }
         .alert-item.upcoming { background: rgba(234,88,12,0.02); }
 
-        /* ← NEW: Hover effect on alert items */
         .alert-item:hover {
           background: rgba(124,77,255,0.05) !important;
         }
@@ -527,41 +526,41 @@ export default function Navbar() {
         .sidebar.expanded  .logout-btn-label { opacity: 1; max-width: 200px; }
         .sidebar.collapsed .logout-btn-label { opacity: 0; max-width: 0; width: 0; }
 
- /* MOBILE TOP BAR */
-      .mobile-topbar {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 56px;
-        background: #fff;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        z-index: 1000;
-        padding: 0 12px;
-        align-items: center;
-        justify-content: space-between;
-      }
+        /* MOBILE TOP BAR */
+        .mobile-topbar {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 56px;
+          background: #fff;
+          border-bottom: 1px solid rgba(0,0,0,0.05);
+          z-index: 1000;
+          padding: 0 12px;
+          align-items: center;
+          justify-content: space-between;
+        }
 
-      .mobile-user {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
+        .mobile-user {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
 
-      .mobile-user-name {
-        font-size: 12px;
-        font-weight: 600;
-      }
+        .mobile-user-name {
+          font-size: 12px;
+          font-weight: 600;
+        }
 
-      .mobile-logout {
-        border: none;
-        background: #fee2e2;
-        padding: 6px;
-        border-radius: 6px;
-        color: red;
-      }
-
+        .mobile-logout {
+          border: none;
+          background: #fee2e2;
+          padding: 6px;
+          border-radius: 6px;
+          color: red;
+          cursor: pointer;
+        }
 
         /* ── Mobile bottom bar (≤ 640px) ── */
         .mobile-bar {
@@ -597,12 +596,25 @@ export default function Navbar() {
         .mobile-link:hover  { color: ${ink}; }
         .mobile-link.active { color: ${purple}; background: rgba(124,77,255,0.08); }
 
-        @media (max-width: 640px) {
-          .sidebar     { display: none; }
-          .mobile-bar  { display: flex; }
-          .mobile-topbar { display: flex; }
-        body { padding-top: 56px; padding-bottom: 60px; }
+        /* Mobile alert dropdown */
+        .mobile-alert-dropdown {
+          position: fixed;
+          bottom: 66px;
+          left: 8px;
+          right: 8px;
+          background: #fff;
+          border: 1px solid rgba(11,7,21,0.09);
+          border-radius: 14px;
+          box-shadow: 0 -8px 32px rgba(11,7,21,0.13);
+          z-index: 200;
+          overflow: hidden;
+        }
 
+        @media (max-width: 640px) {
+          .sidebar      { display: none; }
+          .mobile-bar   { display: flex; }
+          .mobile-topbar { display: flex; }
+          body { padding-top: 56px; padding-bottom: 60px; }
         }
       `}</style>
 
@@ -695,7 +707,6 @@ export default function Navbar() {
                   />
 
                   <div className="bell-dropdown">
-                    {/* Dropdown Header */}
                     <div className="dropdown-header">
                       <div className="dropdown-title">
                         <Bell size={13} strokeWidth={2.2} />
@@ -708,7 +719,6 @@ export default function Navbar() {
                       )}
                     </div>
 
-                    {/* Empty state */}
                     {alerts.length === 0 ? (
                       <div className="dropdown-empty">
                         <div className="dropdown-empty-icon">
@@ -723,7 +733,6 @@ export default function Navbar() {
                             key={alert.leadId}
                             className={`alert-item ${alert.overdue ? 'overdue' : 'upcoming'}`}
                             onClick={() => {
-                              // ✅ FIX: Specific lead pe navigate karo
                               setShowDropdown(false);
                               navigate(`/leads/${alert.leadId}`);
                             }}
@@ -746,7 +755,6 @@ export default function Navbar() {
                       </div>
                     )}
 
-                    {/* Footer — See all */}
                     <div
                       className="dropdown-footer"
                       onClick={() => {
@@ -783,28 +791,22 @@ export default function Navbar() {
         </div>
       </nav>
 
-
- {/* MOBILE TOP */}
+      {/* ── MOBILE TOP BAR ── */}
       <div className="mobile-topbar">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* <Phone size={16} /> */}
           <b>CRM</b>
         </div>
-
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div className="mobile-user">
             <div className="user-avatar">{initials}</div>
-            {/* <span className="mobile-user-name">{user?.name}</span> */}
           </div>
-
           <button className="mobile-logout" onClick={handleLogout}>
             <LogOut size={16} />
           </button>
         </div>
       </div>
 
-
-      {/* ── Mobile bottom bar ── */}
+      {/* ── MOBILE BOTTOM BAR ── */}
       <nav className="mobile-bar">
         {navLinks.map(({ to, label, Icon }) => (
           <NavLink
@@ -816,29 +818,104 @@ export default function Navbar() {
             {label}
           </NavLink>
         ))}
+
         {user?.role === 'agent' && (
-          <button
-            className={`mobile-link${alertStats.total > 0 ? ' active' : ''}`}
-            style={{ border: 'none', background: 'transparent', cursor: 'pointer', position: 'relative' }}
-            onClick={() => navigate('/agent/my-leads')}
-          >
-            <span style={{ position: 'relative', display: 'inline-flex' }}>
-              <Bell size={18} strokeWidth={2.2} />
-              {alertStats.total > 0 && (
-                <span style={{
-                  position: 'absolute', top: -4, right: -4,
-                  width: 14, height: 14, borderRadius: '50%',
-                  background: alertStats.overdue > 0 ? '#dc2626' : '#ea580c',
-                  fontSize: '0.48rem', fontWeight: 800, color: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: '2px solid #fff',
-                }}>
-                  {alertStats.total > 9 ? '9+' : alertStats.total}
-                </span>
-              )}
-            </span>
-            Alerts
-          </button>
+          <>
+            {/* Mobile alert dropdown — renders above the bottom bar */}
+            {showDropdown && (
+              <>
+                {/* Backdrop */}
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+                  onClick={() => setShowDropdown(false)}
+                />
+
+                <div className="mobile-alert-dropdown">
+                  <div className="dropdown-header">
+                    <div className="dropdown-title">
+                      <Bell size={13} strokeWidth={2.2} />
+                      Follow-up Alerts
+                    </div>
+                    {alertStats.total > 0 && (
+                      <span className={`dropdown-count ${alertStats.overdue > 0 ? 'overdue' : 'upcoming'}`}>
+                        {alertStats.total} pending
+                      </span>
+                    )}
+                  </div>
+
+                  {alerts.length === 0 ? (
+                    <div className="dropdown-empty">
+                      <div className="dropdown-empty-icon">
+                        <CheckCircle2 size={18} strokeWidth={2} />
+                      </div>
+                      <span className="dropdown-empty-text">No pending follow-ups</span>
+                    </div>
+                  ) : (
+                    <div className="alert-list">
+                      {alerts.slice(0, 6).map((alert) => (
+                        <div
+                          key={alert.leadId}
+                          className={`alert-item ${alert.overdue ? 'overdue' : 'upcoming'}`}
+                          onClick={() => {
+                            setShowDropdown(false);
+                            navigate(`/leads/${alert.leadId}`);
+                          }}
+                        >
+                          <div className={`alert-dot ${alert.overdue ? 'overdue' : 'upcoming'}`} />
+                          <div className="alert-info">
+                            <div className="alert-name">{alert.name}</div>
+                            <div className="alert-meta">
+                              {alert.phone} · {new Date(alert.followUpDate).toLocaleString('en-IN', {
+                                day: '2-digit', month: 'short',
+                                hour: '2-digit', minute: '2-digit',
+                              })}
+                            </div>
+                          </div>
+                          <span className={`alert-tag ${alert.overdue ? 'overdue' : 'upcoming'}`}>
+                            {alert.overdue ? 'Overdue' : 'Today'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div
+                    className="dropdown-footer"
+                    onClick={() => {
+                      setShowDropdown(false);
+                      navigate('/agent/my-leads');
+                    }}
+                  >
+                    See all leads <ChevronRight size={13} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Alerts bell button */}
+            <button
+              className={`mobile-link${alertStats.total > 0 ? ' active' : ''}`}
+              style={{ border: 'none', background: 'transparent', cursor: 'pointer', position: 'relative' }}
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              <span style={{ position: 'relative', display: 'inline-flex' }}>
+                <Bell size={18} strokeWidth={2.2} />
+                {alertStats.total > 0 && (
+                  <span style={{
+                    position: 'absolute', top: -4, right: -4,
+                    width: 14, height: 14, borderRadius: '50%',
+                    background: alertStats.overdue > 0 ? '#dc2626' : '#ea580c',
+                    fontSize: '0.48rem', fontWeight: 800, color: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    border: '2px solid #fff',
+                  }}>
+                    {alertStats.total > 9 ? '9+' : alertStats.total}
+                  </span>
+                )}
+              </span>
+              Alerts
+            </button>
+          </>
         )}
       </nav>
     </>

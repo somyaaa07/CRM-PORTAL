@@ -77,7 +77,7 @@ const FontStyle = () => (
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .stats-grid-secondary {
       display: grid;
@@ -106,6 +106,7 @@ const FontStyle = () => (
       display: flex;
       flex-direction: column;
       gap: 10px;
+   
     }
 
     /* ── Stat Cards ── */
