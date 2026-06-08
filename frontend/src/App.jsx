@@ -18,7 +18,7 @@ import ManageAgents   from './pages/admin/ManageAgents';
 import ManageLeads    from './pages/admin/ManageLeads';
 import Reports        from './pages/admin/Reports';
 import BulkUpload     from './pages/admin/BulkUpload';
-import MetaLeadsBanner from './components/Metaleadsbanner';
+// import MetaLeadsBanner from './components/Metaleadsbanner';
 import AddLead from './pages/agent/AddLead';
 // Shared Pages
 import LeadDetail from './pages/LeadDetail';
