@@ -9,7 +9,7 @@ import {
 import API from '../../api/axios';
 import ConversionChart from '../../components/ConversionCharts';
 import { useAdminAlerts } from '../../context/AdminAlertContext';
-import MetaLeadsBanner from '../../components/Metaleadsbanner';
+import MetaLeadsBanner from '../../components/MetaLeadsBanner';
 /* ─────────────────────────────────────────
    FONTS & GLOBAL STYLES  (fully responsive)
 ───────────────────────────────────────── */
