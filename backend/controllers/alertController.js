@@ -91,6 +91,56 @@ const getMyAlerts = async (req, res) => {
   }
 };
 
+const getMetaLeadAlerts = async (req, res) => {
+  try {
+    // Last 24 hours
+    const last24Hours = new Date();
+    last24Hours.setHours(last24Hours.getHours() - 24);
+
+    const metaLeads = await Lead.findAll({
+      where: {
+        source: 'Meta Ads',
+        createdAt: { [Op.gte]: last24Hours },
+      },
+      include: [{
+        model: User,
+        as: 'assignedAgent',
+        attributes: ['id', 'name'],
+      }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Total leads
+    const totalMeta = await Lead.count({
+      where: { source: 'Meta Ads' },
+    });
+
+    // Today start (12 AM)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayMeta = await Lead.count({
+      where: {
+        source: 'Meta Ads',
+        createdAt: { [Op.gte]: todayStart },
+      },
+    });
+
+    res.json({
+      hasNewLeads: metaLeads.length > 0,
+      last24Hours: metaLeads.length,
+      todayCount: todayMeta,
+      totalMeta,
+      recentLeads: metaLeads.slice(0, 5),
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      message: 'Server error',
+      error: err.message,
+    });
+  }
+};
 // ─── Alert Dismiss — PROPERLY ─────────────────────────────
 // Dono jagah se clear karo:
 // 1. Lead.followUpDate = null
@@ -124,4 +174,4 @@ const dismissAlert = async (req, res) => {
   }
 };
 
-export { getMyAlerts, dismissAlert };
+export { getMyAlerts, dismissAlert,getMetaLeadAlerts };

@@ -8,7 +8,7 @@ import path from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
-// ─── Lead Add Karo ─────────────────────────────────────────
+// ─── Lead Add ─────────────────────────────────────────
 const addLead = async (req, res) => {
   try {
     const { name, phone, email, source, priority, assignedTo } = req.body;
@@ -17,8 +17,12 @@ const addLead = async (req, res) => {
       return res.status(400).json({ message: '❌ Name and phone are required.' });
     }
 
+    // ✅ If agent is adding, auto-assign to themselves
+    const finalAssignedTo = assignedTo || (req.user ? req.user.id : null);
+
     const lead = await Lead.create({
-      name, phone, email, source, priority, assignedTo,
+      name, phone, email, source, priority,
+      assignedTo: finalAssignedTo,
     });
 
     res.status(201).json({ message: '✅ Lead added!', lead });
@@ -27,7 +31,7 @@ const addLead = async (req, res) => {
   }
 };
 
-// ─── Saare Leads Lo (Admin) — Pagination + Priority Sort ───
+// ───  (Admin) — Pagination + Priority Sort ───
 const getAllLeads = async (req, res) => {
   try {
     const {
@@ -36,11 +40,13 @@ const getAllLeads = async (req, res) => {
       search,
       page  = 1,
       limit = 10,
+      source
     } = req.query;
 
     const where = {};
     if (status)   where.status   = status;
     if (priority) where.priority = priority;
+    if(source) where.source = source;
     if (search) {
       where[Op.or] = [
         { name:  { [Op.like]: `%${search}%` } },

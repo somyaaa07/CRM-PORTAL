@@ -12,6 +12,8 @@ import {
   getSingleAgentStats,
 } from '../controllers/adminController.js';
 import { auth, adminOnly } from '../middleware/auth.js';
+import { subscribePageToWebhook } from '../services/metaService.js';
+
 
 const router = express.Router();
 
@@ -30,5 +32,12 @@ router.delete('/leads/:leadId',             deleteLead);
 router.get('/reports',                      getAgentReports);
 router.get('/overall-stats',                getAdminDailyStats);
 router.get('/agent-stats/:agentId',         getSingleAgentStats);
-
+router.post('/subscribe-page', auth, adminOnly, async (req, res) => {
+  try {
+    const result = await subscribePageToWebhook();
+    res.json({ message: '✅ Page subscribed!', result });
+  } catch (err) {
+    res.status(500).json({ message: '❌ Error', error: err.message });
+  }
+});
 export default router;

@@ -262,7 +262,7 @@ function LeadCard({ lead, onCallClick, onNavigate, isHighlighted }) {
           </span>
 
           <div style={{ display: "flex", gap: 6 }}>
-            {/* ✅ Phone dialer — directly phone khulega */}
+          
             <a
               href={`tel:${lead.phone}`}
               style={{ textDecoration: "none" }}
@@ -301,8 +301,7 @@ function LeadCard({ lead, onCallClick, onNavigate, isHighlighted }) {
               </button>
             </a>
 
-            {/* ✅ Log call — CallModal khulega */}
-            <button
+               <button
               onClick={(e) => {
                 e.stopPropagation();
                 onCallClick(lead);

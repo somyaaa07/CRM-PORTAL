@@ -67,8 +67,8 @@ export default function AgentDashboard() {
   }, []);
 
   const handleCardClick = (status) => {
-    if (status === 'all') navigate('/agent/conversions');
-    else navigate(`/agent/conversions?status=${encodeURIComponent(status)}`);
+    if (status === 'all') navigate('/agent/my-leads');
+    else navigate(`/agent/my-leads?status=${encodeURIComponent(status)}`);
   };
 
   const cards = [

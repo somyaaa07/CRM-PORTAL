@@ -2,6 +2,7 @@ import sequelize from '../config/database.js';
 import User from './User.js';
 import Lead from './Lead.js';
 import CallLog from './CallLogs.js';
+import Notification from './Notification.js';
 
 // ─── Relationships ─────────────────────────────────────────
 
@@ -14,4 +15,13 @@ CallLog.belongsTo(Lead, { foreignKey: 'leadId', as: 'lead' });
 User.hasMany(CallLog, { foreignKey: 'agentId', as: 'callsMade' });
 CallLog.belongsTo(User, { foreignKey: 'agentId', as: 'agent' });
 
-export { sequelize, User, Lead, CallLog };
+User.hasMany(Notification,{
+    foreignKey:'userId', as: 'notification'
+});
+Notification.belongsTo(User, {
+  foreignKey: 'userId',
+  as:         'user',
+});
+
+
+export { sequelize, User, Lead, CallLog,Notification };

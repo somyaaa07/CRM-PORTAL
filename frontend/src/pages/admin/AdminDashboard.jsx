@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import API from '../../api/axios';
 import ConversionChart from '../../components/ConversionCharts';
-
+import { useAdminAlerts } from '../../context/AdminAlertContext';
+import MetaLeadsBanner from '../../components/Metaleadsbanner';
 /* ─────────────────────────────────────────
    FONTS & GLOBAL STYLES  (fully responsive)
 ───────────────────────────────────────── */
@@ -492,7 +493,7 @@ export default function AdminDashboard() {
   const [stats, setStats]         = useState(null);
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading]     = useState(true);
-
+  const { metaAlerts } = useAdminAlerts();
   useEffect(() => {
     (async () => {
       try {
@@ -525,8 +526,9 @@ export default function AdminDashboard() {
     <>
       <FontStyle />
       <div className="dashboard-root">
-
         {/* ── Header ── */}
+        <MetaLeadsBanner/>
+
         <div className="dashboard-header">
           <div>
             <h1 className="dashboard-title">Admin Dashboard</h1>
@@ -537,7 +539,130 @@ export default function AdminDashboard() {
             Live
           </div>
         </div>
+{metaAlerts && metaAlerts.totalMeta > 0 && (
+    <div style={{
+            background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)',
+            border: '1px solid #C7D2FE',
+            borderRadius: 14, padding: '1.25rem',
+            marginBottom: '1rem',
+          }}>
+            <div style={{
+              display: 'flex', alignItems: 'center',
+              justifyContent: 'space-between', marginBottom: 12,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 20 }}>📱</span>
+                <span style={{
+                  fontWeight: 700, fontSize: 14, color: '#3730A3',
+                  fontFamily: "'Manrope', sans-serif",
+                }}>
+                  Meta Ads Leads
+                </span>
+              </div>
+              <button
+                onClick={() => navigate('/admin/leads?source=Meta Ads')}
+                style={{
+                  background: '#4F46E5', color: '#fff',
+                  border: 'none', borderRadius: 8,
+                  padding: '6px 14px', fontSize: 12,
+                  fontWeight: 600, cursor: 'pointer',
+                }}
+              >
+                View All →
+              </button>
+            </div>
 
+            {/* Stats Row */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 10,
+            }}>
+              {[
+                {
+                  label: 'Total Meta Leads',
+                  value: metaAlerts.totalMeta,
+                  color: '#4F46E5',
+                },
+                {
+                  label: 'Aaj Aaye',
+                  value: metaAlerts.todayCount,
+                  color: '#7C3AED',
+                },
+                {
+                  label: 'Last 24 Hours',
+                  value: metaAlerts.last24Hours,
+                  color: '#2563EB',
+                },
+              ].map((stat) => (
+                <div key={stat.label} style={{
+                  background: '#fff', borderRadius: 10,
+                  padding: '12px', textAlign: 'center',
+                  border: '1px solid #E0E7FF',
+                }}>
+                  <p style={{
+                    margin: 0, fontSize: 24, fontWeight: 800,
+                    color: stat.color,
+                    fontFamily: "'Manrope', sans-serif",
+                  }}>
+                    {stat.value}
+                  </p>
+                  <p style={{
+                    margin: 0, fontSize: 11, color: '#6366F1',
+                    marginTop: 4,
+                    fontFamily: "'Jost', sans-serif",
+                  }}>
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Recent Meta Leads */}
+            {metaAlerts.recentLeads?.length > 0 && (
+              <div style={{ marginTop: 12 }}>
+                <p style={{
+                  fontSize: 11, fontWeight: 600, color: '#6366F1',
+                  marginBottom: 8, textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                }}>
+                  Recent Meta Leads
+                </p>
+                {metaAlerts.recentLeads.map((lead) => (
+                  <div key={lead.id} style={{
+                    display: 'flex', alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: '#fff', borderRadius: 8,
+                    padding: '8px 12px', marginBottom: 6,
+                    border: '1px solid #E0E7FF',
+                  }}>
+                    <div>
+                      <p style={{
+                        margin: 0, fontSize: 13, fontWeight: 600,
+                        color: '#1E1B4B',
+                      }}>
+                        {lead.name}
+                      </p>
+                      <p style={{
+                        margin: 0, fontSize: 11, color: '#6366F1',
+                      }}>
+                        📱 {lead.phone}
+                        {lead.assignedAgent && ` • 🧑‍💼 ${lead.assignedAgent.name}`}
+                      </p>
+                    </div>
+                    <span style={{
+                      fontSize: 10, fontWeight: 600,
+                      background: '#EEF2FF', color: '#4F46E5',
+                      padding: '3px 8px', borderRadius: 20,
+                    }}>
+                      Meta Ads
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         {/* ── Primary Stats ── */}
         <span className="section-label">Lead Overview</span>
         <div className="stats-grid-primary">

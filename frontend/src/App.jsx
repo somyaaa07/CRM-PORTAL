@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth }    from './context/AuthContext';
 import { AlertProvider }            from './context/AlertContext';
 import { ToastProvider, useToast }  from './context/ToastContext';
+import { AdminAlertProvider } from './context/AdminAlertContext';
 import Navbar       from './components/Navbar';
 import Login        from './pages/Login';
 
@@ -17,10 +18,13 @@ import ManageAgents   from './pages/admin/ManageAgents';
 import ManageLeads    from './pages/admin/ManageLeads';
 import Reports        from './pages/admin/Reports';
 import BulkUpload     from './pages/admin/BulkUpload';
-
+import MetaLeadsBanner from './components/Metaleadsbanner';
+import AddLead from './pages/agent/AddLead';
 // Shared Pages
 import LeadDetail from './pages/LeadDetail';
 import ScrollToTop from './components/ScrollToTp';
+import { NotificationProvider } from './context/NotificationContext'; 
+
 
 // ── Protected Route ────────────────────────────────────────
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -124,6 +128,12 @@ function AppRoutes() {
             : '/agent/dashboard'
         } />
       } />
+
+      <Route path="/agent/add-lead" element={
+  <ProtectedRoute allowedRole="agent">
+    <Layout><AddLead /></Layout>
+  </ProtectedRoute>
+} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
@@ -134,10 +144,14 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <AlertWrapper>
+          <AdminAlertProvider>
+            <NotificationProvider>
           <BrowserRouter>
           <ScrollToTop/>
             <AppRoutes />
           </BrowserRouter>
+          </NotificationProvider>
+          </AdminAlertProvider>
         </AlertWrapper>
       </ToastProvider>
     </AuthProvider>
